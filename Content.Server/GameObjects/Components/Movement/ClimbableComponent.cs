@@ -46,9 +46,9 @@ namespace Content.Server.GameObjects.Components.Movement
         {
             base.Initialize();
 
-            if (!Owner.EnsureComponent(out CollidableComponent _))
+            if (!Owner.EnsureComponent(out PhysicsComponent _))
             {
-                Logger.Warning($"Entity {Owner.Name} at {Owner.Transform.MapPosition} didn't have a {nameof(CollidableComponent)}");
+                Logger.Warning($"Entity {Owner.Name} at {Owner.Transform.MapPosition} didn't have a {nameof(PhysicsComponent)}");
             }
 
             _doAfterSystem = EntitySystem.Get<DoAfterSystem>();
@@ -67,10 +67,10 @@ namespace Content.Server.GameObjects.Components.Movement
             string reason;
             bool canVault;
 
-            if (eventArgs.User == eventArgs.Dropped)
+            if (eventArgs.User == eventArgs.Dragged)
                 canVault = CanVault(eventArgs.User, eventArgs.Target, out reason);
             else
-                canVault = CanVault(eventArgs.User, eventArgs.Dropped, eventArgs.Target, out reason);
+                canVault = CanVault(eventArgs.User, eventArgs.Dragged, eventArgs.Target, out reason);
 
             if (!canVault)
                 eventArgs.User.PopupMessage(reason);
@@ -154,13 +154,13 @@ namespace Content.Server.GameObjects.Components.Movement
 
         bool IDragDropOn.DragDropOn(DragDropEventArgs eventArgs)
         {
-            if (eventArgs.User == eventArgs.Dropped)
+            if (eventArgs.User == eventArgs.Dragged)
             {
                 TryClimb(eventArgs.User);
             }
             else
             {
-                TryMoveEntity(eventArgs.User, eventArgs.Dropped);
+                TryMoveEntity(eventArgs.User, eventArgs.Dragged);
             }
 
             return true;
@@ -178,7 +178,7 @@ namespace Content.Server.GameObjects.Components.Movement
 
             var result = await _doAfterSystem.DoAfter(doAfterEventArgs);
 
-            if (result != DoAfterStatus.Cancelled && entityToMove.TryGetComponent(out ICollidableComponent body) && body.PhysicsShapes.Count >= 1)
+            if (result != DoAfterStatus.Cancelled && entityToMove.TryGetComponent(out IPhysicsComponent body) && body.PhysicsShapes.Count >= 1)
             {
                 var direction = (Owner.Transform.WorldPosition - entityToMove.Transform.WorldPosition).Normalized;
                 var endPoint = Owner.Transform.WorldPosition;
@@ -210,6 +210,9 @@ namespace Content.Server.GameObjects.Components.Movement
 
         private async void TryClimb(IEntity user)
         {
+            if (!user.TryGetComponent(out ClimbingComponent climbingComponent) || climbingComponent.IsClimbing)
+                return;
+
             var doAfterEventArgs = new DoAfterEventArgs(user, _climbDelay, default, Owner)
             {
                 BreakOnTargetMove = true,
@@ -220,7 +223,7 @@ namespace Content.Server.GameObjects.Components.Movement
 
             var result = await _doAfterSystem.DoAfter(doAfterEventArgs);
 
-            if (result != DoAfterStatus.Cancelled && user.TryGetComponent(out ICollidableComponent body) && body.PhysicsShapes.Count >= 1)
+            if (result != DoAfterStatus.Cancelled && user.TryGetComponent(out IPhysicsComponent body) && body.PhysicsShapes.Count >= 1)
             {
                 var direction = (Owner.Transform.WorldPosition - user.Transform.WorldPosition).Normalized;
                 var endPoint = Owner.Transform.WorldPosition;

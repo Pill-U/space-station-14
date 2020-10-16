@@ -155,17 +155,17 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
 - uid: 9
-  type: SuspicionGrenadesSpawner
+  type: Table
   components:
   - parent: 857
-    pos: -11.5,19.5
+    pos: -6.5,-7.5
     rot: -1.5707963267948966 rad
     type: Transform
 - uid: 10
-  type: SuspicionGrenadesSpawner
+  type: SpawnPointStationEngineer
   components:
   - parent: 857
-    pos: -11.5,20.5
+    pos: 33.5,9.5
     rot: -1.5707963267948966 rad
     type: Transform
 - uid: 11
@@ -176,10 +176,10 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
 - uid: 12
-  type: SuspicionSniperSpawner
+  type: KitchenSpike
   components:
   - parent: 857
-    pos: -12.5,19.5
+    pos: -11.5,-4.5
     rot: -1.5707963267948966 rad
     type: Transform
 - uid: 13
@@ -197,19 +197,22 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
 - uid: 15
-  type: SuspicionRifleSpawner
+  type: BikeHornInstrument
   components:
   - parent: 857
-    pos: -13.5,19.5
+    pos: -18.5,-9.5
     rot: -1.5707963267948966 rad
     type: Transform
 - uid: 16
-  type: SuspicionPistolSpawner
+  type: FirelockGlass
   components:
   - parent: 857
-    pos: -13.5,18.5
+    pos: 1.5,3.5
     rot: -1.5707963267948966 rad
     type: Transform
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
 - uid: 17
   type: SuspicionRevolverSpawner
   components:
@@ -406,8 +409,6 @@ entities:
     pos: -18.509874,-9.279623
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 45
   type: FoodBananaCreamPie
   components:
@@ -415,8 +416,6 @@ entities:
     pos: -18.947374,-9.467123
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 46
   type: FoodBanana
   components:
@@ -424,8 +423,6 @@ entities:
     pos: -19.463,-9.482748
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 47
   type: FoodBanana
   components:
@@ -433,8 +430,6 @@ entities:
     pos: -19.603624,-9.388998
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 48
   type: FoodBanana
   components:
@@ -442,8 +437,6 @@ entities:
     pos: -19.728624,-9.576498
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 49
   type: Poweredlight
   components:
@@ -469,8 +462,6 @@ entities:
     pos: 19.49593,-21.552101
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 52
   type: ShoesCoder
   components:
@@ -478,8 +469,6 @@ entities:
     pos: 47.437466,-6.6893435
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 53
   type: JawsOfLife
   components:
@@ -489,8 +478,6 @@ entities:
     type: Transform
   - useSound: /Audio/Items/jaws_pry.ogg
     type: Tool
-  - anchored: False
-    type: Collidable
 - uid: 54
   type: GlovesLatex
   components:
@@ -498,8 +485,6 @@ entities:
     pos: 22.086878,-4.4133806
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 55
   type: GlovesLatex
   components:
@@ -507,8 +492,6 @@ entities:
     pos: 21.618128,-4.4133806
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 56
   type: FoodMint
   components:
@@ -516,8 +499,6 @@ entities:
     pos: -2.776661,-3.3271997
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 57
   type: ToyPhazon
   components:
@@ -525,8 +506,6 @@ entities:
     pos: 9.449931,16.636608
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 58
   type: Scalpel
   components:
@@ -534,8 +513,6 @@ entities:
     pos: 19.190952,-21.29313
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 59
   type: DrinkBottleRum
   components:
@@ -543,8 +520,6 @@ entities:
     pos: -15.694785,24.608267
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 60
   type: DisgustingSweptSoup
   components:
@@ -552,8 +527,6 @@ entities:
     pos: -14.96041,24.545767
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 61
   type: Retractor
   components:
@@ -561,8 +534,6 @@ entities:
     pos: 19.482815,-21.853302
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 62
   type: ToyMouse
   components:
@@ -570,8 +541,6 @@ entities:
     pos: 31.376545,-7.1625524
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 63
   type: SignSurgery
   components:
@@ -588,8 +557,6 @@ entities:
     pos: 19.515043,-22.566078
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 65
   type: BedsheetMedical
   components:
@@ -597,8 +564,6 @@ entities:
     pos: 18.5,-20.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 66
   type: Bed
   components:
@@ -613,8 +578,6 @@ entities:
     pos: 19.655668,-21.300453
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 68
   type: LockerCursed
   components:
@@ -622,8 +585,6 @@ entities:
     pos: -8.5,-25.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -638,7 +599,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
   - containers:
       PowerCellCharger-powerCellContainer:
         type: Content.Server.GameObjects.ContainerSlot
@@ -650,8 +611,6 @@ entities:
     pos: -4.7375913,-3.3900535
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 71
   type: SuspicionPistolSpawner
   components:
@@ -666,8 +625,6 @@ entities:
     pos: -3.454914,18.643616
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - containers:
       storagebase:
         type: Robust.Server.GameObjects.Components.Container.Container
@@ -679,8 +636,6 @@ entities:
     pos: -3.470539,16.956116
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 74
   type: GoldStack
   components:
@@ -688,8 +643,6 @@ entities:
     pos: -2.579914,16.362366
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 75
   type: GoldStack
   components:
@@ -697,8 +650,6 @@ entities:
     pos: -2.439289,16.72174
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 76
   type: GoldStack
   components:
@@ -706,8 +657,6 @@ entities:
     pos: -2.283039,16.518616
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 77
   type: GoldStack
   components:
@@ -715,8 +664,6 @@ entities:
     pos: -2.798664,16.424866
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 78
   type: GoldStack
   components:
@@ -724,8 +671,6 @@ entities:
     pos: -2.611164,16.549866
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 79
   type: GoldStack
   components:
@@ -733,8 +678,6 @@ entities:
     pos: -2.673664,16.72174
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 80
   type: GoldStack
   components:
@@ -742,8 +685,6 @@ entities:
     pos: -2.861164,16.72174
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 81
   type: GoldStack
   components:
@@ -751,8 +692,6 @@ entities:
     pos: -3.064289,16.53424
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 82
   type: Bling
   components:
@@ -760,8 +699,6 @@ entities:
     pos: -2.861164,18.612366
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 83
   type: Bling
   components:
@@ -769,8 +706,6 @@ entities:
     pos: -2.564289,18.643616
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 84
   type: Table
   components:
@@ -904,57 +839,47 @@ entities:
     pos: 6.839255,-3.3712535
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 103
-  type: MaskJoy
+  type: soda_dispenser
   components:
   - parent: 857
-    pos: -9.360208,-25.487799
+    pos: -5.5,-7.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
+  - containers:
+      ReagentDispenser-reagentContainerContainer:
+        type: Content.Server.GameObjects.ContainerSlot
+    type: ContainerContainer
 - uid: 104
   type: RCD
   components:
   - parent: 857
     pos: 29.55875,-4.333219
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 105
   type: RCD
   components:
   - parent: 857
     pos: 29.4025,-4.489469
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 106
   type: WeldingFuelTank
   components:
   - parent: 857
     pos: -1.5,-11.5
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 107
   type: WaterTankFull
   components:
   - parent: 857
     pos: 0.5,-11.5
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 108
   type: Basketball
   components:
   - parent: 857
     pos: -1.5183675,-6.4951944
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 109
   type: SignSomethingOld2
   components:
@@ -988,32 +913,24 @@ entities:
   - parent: 857
     pos: 8.379866,25.982151
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 113
   type: DrinkHotCoffee
   components:
   - parent: 857
     pos: 8.661116,25.513401
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 114
   type: RandHandTele
   components:
   - parent: 857
     pos: 8.379866,26.654026
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 115
   type: FlashlightLantern
   components:
   - parent: 857
     pos: 30.248352,-4.36431
     type: Transform
-  - anchored: False
-    type: Collidable
   - containers:
       flashlight_cell_container:
         type: Content.Server.GameObjects.ContainerSlot
@@ -1024,8 +941,6 @@ entities:
   - parent: 857
     pos: 30.545227,-4.17681
     type: Transform
-  - anchored: False
-    type: Collidable
   - containers:
       flashlight_cell_container:
         type: Content.Server.GameObjects.ContainerSlot
@@ -1036,32 +951,29 @@ entities:
   - parent: 857
     pos: 31.357727,-4.36431
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 118
   type: HatHardhatWhite
   components:
   - parent: 857
     pos: 31.623352,-4.14556
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 119
   type: HatHardhatRed
   components:
   - parent: 857
     pos: 31.201477,-4.05181
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 120
-  type: S
+  type: BoozeDispenser
   components:
   - parent: 857
-    pos: -9.816995,-25.23114
+    pos: -6.5,-7.5
+    rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
+  - containers:
+      ReagentDispenser-reagentContainerContainer:
+        type: Content.Server.GameObjects.ContainerSlot
+    type: ContainerContainer
 - uid: 121
   type: Chair
   components:
@@ -1090,8 +1002,6 @@ entities:
     pos: -14.484581,20.641253
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - containers:
       stunbaton_cell_container:
         type: Content.Server.GameObjects.ContainerSlot
@@ -1103,8 +1013,6 @@ entities:
     pos: -14.609581,20.969378
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - containers:
       stunbaton_cell_container:
         type: Content.Server.GameObjects.ContainerSlot
@@ -1114,8 +1022,6 @@ entities:
   components:
   - parent: 127
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 127
   type: TaserGun
   components:
@@ -1123,8 +1029,6 @@ entities:
     pos: -14.515831,21.735003
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - containers:
       BatteryBarrel-powercell-container:
         entities:
@@ -1138,8 +1042,6 @@ entities:
   components:
   - parent: 129
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 129
   type: TaserGun
   components:
@@ -1147,8 +1049,6 @@ entities:
     pos: -13.672081,21.719378
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - containers:
       BatteryBarrel-powercell-container:
         entities:
@@ -1407,8 +1307,6 @@ entities:
     pos: 18.611881,1.2455455
     rot: 3.141592653589793 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 159
   type: Beaker
   components:
@@ -1416,8 +1314,6 @@ entities:
     pos: 18.361881,1.6674205
     rot: 3.141592653589793 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 160
   type: DisposalBend
   components:
@@ -3553,8 +3449,7 @@ entities:
     pos: -22.5,14.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
@@ -5907,7 +5802,7 @@ entities:
     pos: -8.5,8.5
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 580
   type: ChairOfficeDark
   components:
@@ -5916,7 +5811,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 581
   type: Table
   components:
@@ -6660,8 +6555,6 @@ entities:
     pos: 17.5,-22.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7364,8 +7257,6 @@ entities:
     pos: -3.5,-7.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7390,8 +7281,6 @@ entities:
     pos: 5.5,-21.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7416,8 +7305,6 @@ entities:
     pos: -23.5,11.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7431,8 +7318,6 @@ entities:
     pos: 24.5,13.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7468,8 +7353,6 @@ entities:
     pos: -2.5,30.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7483,8 +7366,6 @@ entities:
     pos: 9.5,30.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7498,8 +7379,6 @@ entities:
     pos: -0.5,14.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7524,8 +7403,6 @@ entities:
     pos: -21.5,-8.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7561,8 +7438,6 @@ entities:
     pos: -37.5,-6.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7576,8 +7451,6 @@ entities:
     pos: -11.5,-11.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7591,8 +7464,6 @@ entities:
     pos: -17.5,-17.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7606,8 +7477,6 @@ entities:
     pos: -12.5,21.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7621,8 +7490,6 @@ entities:
     pos: 13.5,21.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7636,8 +7503,6 @@ entities:
     pos: 12.5,21.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7651,8 +7516,6 @@ entities:
     pos: 28.5,12.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7666,8 +7529,6 @@ entities:
     pos: 43.5,9.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7681,8 +7542,6 @@ entities:
     pos: 44.5,9.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7696,8 +7555,6 @@ entities:
     pos: 23.5,0.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7711,8 +7568,6 @@ entities:
     pos: 8.5,-18.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7726,8 +7581,6 @@ entities:
     pos: 9.5,-18.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7741,8 +7594,6 @@ entities:
     pos: -15.5,-17.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7756,8 +7607,6 @@ entities:
     pos: -7.5,-25.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7771,8 +7620,6 @@ entities:
     pos: 26.5,12.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7786,8 +7633,6 @@ entities:
     pos: 23.5,1.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7801,8 +7646,6 @@ entities:
     pos: -14.5,-17.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7816,8 +7659,6 @@ entities:
     pos: -11.5,-10.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7831,8 +7672,6 @@ entities:
     pos: -37.5,-7.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7846,8 +7685,6 @@ entities:
     pos: -39.5,2.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7861,8 +7698,6 @@ entities:
     pos: -34.5,10.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7876,8 +7711,6 @@ entities:
     pos: 6.5,26.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7891,8 +7724,6 @@ entities:
     pos: 23.5,7.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7917,8 +7748,6 @@ entities:
     pos: 0.5,14.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7932,8 +7761,6 @@ entities:
     pos: -19.5,9.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7947,8 +7774,6 @@ entities:
     pos: -19.5,10.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7962,8 +7787,6 @@ entities:
     pos: -14.5,1.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7977,8 +7800,6 @@ entities:
     pos: 7.5,-16.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -7992,8 +7813,6 @@ entities:
     pos: 18.5,-2.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8007,8 +7826,6 @@ entities:
     pos: 24.5,-7.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8022,8 +7839,6 @@ entities:
     pos: -12.5,13.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8037,8 +7852,6 @@ entities:
     pos: -13.5,13.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8052,8 +7865,6 @@ entities:
     pos: -14.5,13.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8067,8 +7878,6 @@ entities:
     pos: 23.5,-7.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8082,8 +7891,6 @@ entities:
     pos: -11.5,21.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8097,8 +7904,6 @@ entities:
     pos: 21.5,-15.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8112,8 +7917,6 @@ entities:
     pos: -28.5,-2.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8127,8 +7930,6 @@ entities:
     pos: 10.5,21.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8149,8 +7950,6 @@ entities:
     pos: 32.5,-4.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8164,8 +7963,6 @@ entities:
     pos: 36.5,10.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8179,8 +7976,6 @@ entities:
     pos: 36.5,9.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8194,8 +7989,6 @@ entities:
     pos: 36.5,8.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8209,8 +8002,6 @@ entities:
     pos: 37.5,-1.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8224,8 +8015,6 @@ entities:
     pos: 35.5,-1.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8239,8 +8028,6 @@ entities:
     pos: 35.5,-2.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8254,8 +8041,6 @@ entities:
     pos: -2.5,-24.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8269,8 +8054,6 @@ entities:
     pos: -11.5,-17.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8284,8 +8067,6 @@ entities:
     pos: -13.5,-17.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8299,8 +8080,6 @@ entities:
     pos: -11.5,-12.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8314,8 +8093,6 @@ entities:
     pos: -27.5,-2.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8329,8 +8106,6 @@ entities:
     pos: -27.5,-4.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -8623,7 +8398,7 @@ entities:
   - shapes:
     - !type:PhysShapeGrid
       grid: 0
-    type: Collidable
+    type: Physics
   - uniqueMixes:
     - volume: 2500
       moles:
@@ -19870,7 +19645,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 903
   type: PianoInstrument
   components:
@@ -19879,7 +19654,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 904
   type: VendingMachineTheater
   components:
@@ -20125,8 +19900,6 @@ entities:
     pos: 7.370505,-3.4650035
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 939
   type: TrashSpawner
   components:
@@ -20189,8 +19962,6 @@ entities:
     pos: 6.97988,-3.2306285
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 947
   type: solid_wall
   components:
@@ -20282,8 +20053,6 @@ entities:
     pos: 9.699392,17.630365
     rot: 3.141592653589793 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 960
   type: ChairOfficeDark
   components:
@@ -20292,7 +20061,7 @@ entities:
     rot: 3.141592653589793 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 961
   type: Chair
   components:
@@ -20300,7 +20069,7 @@ entities:
     pos: 8.5,17.5
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 962
   type: Table
   components:
@@ -20344,6 +20113,12 @@ entities:
     type: GalacticMarket
   - deadThreshold: 100
     type: BreakableConstruction
+  - containers:
+      board:
+        entities:
+        - 4037
+        type: Robust.Server.GameObjects.Components.Container.Container
+    type: ContainerContainer
 - uid: 966
   type: ChairOfficeDark
   components:
@@ -20352,7 +20127,7 @@ entities:
     rot: 1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 967
   type: ComputerMedicalRecords
   components:
@@ -20370,7 +20145,7 @@ entities:
     rot: 1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 969
   type: ChairOfficeDark
   components:
@@ -20378,7 +20153,7 @@ entities:
     pos: -2.5,25.5
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 970
   type: ChairOfficeDark
   components:
@@ -20386,7 +20161,7 @@ entities:
     pos: -2.5,24.5
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 971
   type: ChairOfficeDark
   components:
@@ -20395,7 +20170,7 @@ entities:
     rot: 3.141592653589793 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 972
   type: ChairOfficeDark
   components:
@@ -20404,7 +20179,7 @@ entities:
     rot: 3.141592653589793 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 973
   type: TableWood
   components:
@@ -20425,16 +20200,12 @@ entities:
   - parent: 857
     pos: -1.563138,24.568495
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 976
   type: Paper
   components:
   - parent: 857
     pos: -1.344388,25.58412
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 977
   type: ComputerPowerMonitoring
   components:
@@ -20522,7 +20293,7 @@ entities:
     pos: 7.5,25.5
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 985
   type: ChairOfficeDark
   components:
@@ -20531,7 +20302,7 @@ entities:
     rot: 3.141592653589793 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 986
   type: ComputerComms
   components:
@@ -20541,6 +20312,12 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: BreakableConstruction
+  - containers:
+      board:
+        entities:
+        - 4004
+        type: Robust.Server.GameObjects.Components.Container.Container
+    type: ContainerContainer
 - uid: 987
   type: ChairOfficeDark
   components:
@@ -20549,7 +20326,7 @@ entities:
     rot: 1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 988
   type: TableWood
   components:
@@ -20639,6 +20416,12 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: BreakableConstruction
+  - containers:
+      board:
+        entities:
+        - 4045
+        type: Robust.Server.GameObjects.Components.Container.Container
+    type: ContainerContainer
 - uid: 999
   type: Table
   components:
@@ -20653,7 +20436,7 @@ entities:
     pos: -1.5,-3.5
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1001
   type: Catwalk
   components:
@@ -20668,7 +20451,7 @@ entities:
     pos: 22.5,-14.5
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1003
   type: VendingMachineSnack
   components:
@@ -20687,8 +20470,6 @@ entities:
   - parent: 857
     pos: -6.419425,0.43689823
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 1006
   type: BarSign
   components:
@@ -20704,7 +20485,7 @@ entities:
     rot: 1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1008
   type: ChairWood
   components:
@@ -20713,7 +20494,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1009
   type: ChairWood
   components:
@@ -20722,7 +20503,7 @@ entities:
     rot: 1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1010
   type: ChairWood
   components:
@@ -20731,7 +20512,7 @@ entities:
     rot: 1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1011
   type: ChairWood
   components:
@@ -20740,7 +20521,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1012
   type: ChairWood
   components:
@@ -20749,7 +20530,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1013
   type: ChairWood
   components:
@@ -20758,7 +20539,7 @@ entities:
     rot: 1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1014
   type: ChairWood
   components:
@@ -20767,7 +20548,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1015
   type: TableWood
   components:
@@ -20804,14 +20585,18 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: BreakableConstruction
+  - containers:
+      board:
+        entities:
+        - 4034
+        type: Robust.Server.GameObjects.Components.Container.Container
+    type: ContainerContainer
 - uid: 1020
   type: Fork
   components:
   - parent: 857
     pos: -7.6538,0.49939823
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 1021
   type: StoolBar
   components:
@@ -20820,7 +20605,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1022
   type: StoolBar
   components:
@@ -20829,7 +20614,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1023
   type: StoolBar
   components:
@@ -20838,7 +20623,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1024
   type: StoolBar
   components:
@@ -20847,7 +20632,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1025
   type: StoolBar
   components:
@@ -20856,7 +20641,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1026
   type: StoolBar
   components:
@@ -20865,7 +20650,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1027
   type: Catwalk
   components:
@@ -21001,10 +20786,10 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
 - uid: 1045
-  type: SpawnPointStationEngineer
+  type: Table
   components:
   - parent: 857
-    pos: 33.5,11.5
+    pos: -5.5,-7.5
     rot: -1.5707963267948966 rad
     type: Transform
 - uid: 1046
@@ -21083,7 +20868,7 @@ entities:
     rot: 1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1053
   type: ChairOfficeLight
   components:
@@ -21091,7 +20876,7 @@ entities:
     pos: -9.5,-17.5
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1054
   type: Table
   components:
@@ -21111,7 +20896,7 @@ entities:
     pos: -5.5,-23.5
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1057
   type: ChairOfficeLight
   components:
@@ -21119,7 +20904,7 @@ entities:
     pos: -0.5,-14.5
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1058
   type: BaseResearchAndDevelopmentPointSource
   components:
@@ -21185,6 +20970,12 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: BreakableConstruction
+  - containers:
+      board:
+        entities:
+        - 4022
+        type: Robust.Server.GameObjects.Components.Container.Container
+    type: ContainerContainer
 - uid: 1066
   type: LowWall
   components:
@@ -21564,7 +21355,7 @@ entities:
     rot: 3.141592653589793 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1105
   type: Table
   components:
@@ -21602,8 +21393,6 @@ entities:
     pos: 15.48139,-0.43026757
     rot: 1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 1110
   type: LargeBeaker
   components:
@@ -21611,8 +21400,6 @@ entities:
     pos: 14.528265,-0.44589257
     rot: 1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 1111
   type: DisposalTrunk
   components:
@@ -21647,8 +21434,6 @@ entities:
     pos: 6.5068817,-9.984968
     rot: 1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - containers:
       storagebase:
         type: Robust.Server.GameObjects.Components.Container.Container
@@ -21660,8 +21445,6 @@ entities:
     pos: 6.5225067,-9.141218
     rot: 1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - containers:
       storagebase:
         type: Robust.Server.GameObjects.Components.Container.Container
@@ -21673,8 +21456,6 @@ entities:
     pos: 6.5693817,-8.359968
     rot: 1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - containers:
       storagebase:
         type: Robust.Server.GameObjects.Components.Container.Container
@@ -21781,8 +21562,6 @@ entities:
     pos: 6.5537567,-7.609968
     rot: 1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - containers:
       storagebase:
         type: Robust.Server.GameObjects.Components.Container.Container
@@ -21931,8 +21710,6 @@ entities:
     pos: 15.07514,-0.38339257
     rot: 1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 1145
   type: Table
   components:
@@ -22003,8 +21780,6 @@ entities:
     pos: 24.5,-4.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -22053,8 +21828,6 @@ entities:
     pos: 22.5,-7.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -22075,8 +21848,6 @@ entities:
     pos: 21.5,-7.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -22142,8 +21913,6 @@ entities:
     pos: 18.5,-1.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -22157,8 +21926,6 @@ entities:
     pos: 39.5,9.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -22187,7 +21954,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1174
   type: Chair
   components:
@@ -22196,7 +21963,7 @@ entities:
     rot: -1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1175
   type: LockerHeadOfSecurityFilled
   components:
@@ -22204,8 +21971,6 @@ entities:
     pos: -9.5,21.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -22293,7 +22058,7 @@ entities:
     rot: 1.5707963267948966 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1186
   type: Table
   components:
@@ -22529,8 +22294,6 @@ entities:
     pos: 9.652517,18.48974
     rot: 3.141592653589793 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 1212
   type: ChairOfficeDark
   components:
@@ -22539,7 +22302,7 @@ entities:
     rot: 3.141592653589793 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1213
   type: Poweredlight
   components:
@@ -22577,7 +22340,7 @@ entities:
     rot: 3.141592653589793 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1217
   type: Chair
   components:
@@ -22585,7 +22348,7 @@ entities:
     pos: -13.5,8.5
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1218
   type: Food4NoRaisins
   components:
@@ -22595,8 +22358,6 @@ entities:
     type: Transform
   - fillingSteps: 0
     type: SolutionContainer
-  - anchored: False
-    type: Collidable
 - uid: 1219
   type: PoweredSmallLight
   components:
@@ -22661,8 +22422,6 @@ entities:
     pos: -38.496082,2.6274996
     rot: 1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 1224
   type: Poweredlight
   components:
@@ -22744,8 +22503,6 @@ entities:
     pos: 38.5,9.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -22759,8 +22516,6 @@ entities:
     pos: -29.434454,8.191761
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 1231
   type: ComputerPowerMonitoring
   components:
@@ -22776,8 +22531,6 @@ entities:
     pos: 35.5,-0.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -22791,8 +22544,6 @@ entities:
     pos: -29.340704,7.4573865
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 1234
   type: LockerToolFilled
   components:
@@ -22800,8 +22551,6 @@ entities:
     pos: 35.5,0.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -22900,8 +22649,6 @@ entities:
     pos: -27.5,11.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -23049,7 +22796,7 @@ entities:
     pos: -8.5,20.5
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1260
   type: solid_wall
   components:
@@ -23138,8 +22885,6 @@ entities:
   - parent: 857
     pos: 8.598616,26.075901
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 1267
   type: Poweredlight
   components:
@@ -24121,7 +23866,7 @@ entities:
     rot: 3.141592653589793 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1348
   type: ChairOfficeLight
   components:
@@ -24130,7 +23875,7 @@ entities:
     rot: 3.141592653589793 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1349
   type: Poweredlight
   components:
@@ -24740,8 +24485,6 @@ entities:
     pos: 35.5,-3.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 1401
   type: WaterTankFull
   components:
@@ -24749,8 +24492,6 @@ entities:
     pos: -19.5,7.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 1402
   type: ReinforcedWindow
   components:
@@ -24800,8 +24541,7 @@ entities:
     pos: 6.5,20.5
     rot: 1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 1409
@@ -25764,7 +25504,7 @@ entities:
     rot: 3.141592653589793 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1546
   type: Chair
   components:
@@ -25772,7 +25512,7 @@ entities:
     pos: 38.5,-0.5
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1547
   type: Table
   components:
@@ -25827,8 +25567,6 @@ entities:
     pos: 33.5,12.5
     rot: 1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 1554
   type: Table
   components:
@@ -26031,7 +25769,7 @@ entities:
     rot: 3.141592653589793 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 1582
   type: Catwalk
   components:
@@ -26046,8 +25784,6 @@ entities:
     pos: 39.5,13.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -26061,8 +25797,6 @@ entities:
     pos: 38.5,13.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -26653,8 +26387,6 @@ entities:
     pos: 10.5,-18.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 1665
   type: solid_wall
   components:
@@ -31794,8 +31526,6 @@ entities:
     pos: 8.259691,28.555487
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - containers:
       storagebase:
         type: Robust.Server.GameObjects.Components.Container.Container
@@ -32108,7 +31838,7 @@ entities:
     rot: 3.141592653589793 rad
     type: Transform
   - anchored: False
-    type: Collidable
+    type: Physics
 - uid: 2439
   type: solid_wall
   components:
@@ -32151,8 +31881,6 @@ entities:
     pos: 6.259919,28.557344
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 2445
   type: Medkit
   components:
@@ -32160,8 +31888,6 @@ entities:
     pos: -0.959059,28.524237
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - containers:
       storagebase:
         type: Robust.Server.GameObjects.Components.Container.Container
@@ -32201,8 +31927,6 @@ entities:
     pos: -26.5,11.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 2451
   type: WeldingFuelTank
   components:
@@ -32210,8 +31934,6 @@ entities:
     pos: 35.5,-4.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 2452
   type: WeldingFuelTank
   components:
@@ -32219,8 +31941,6 @@ entities:
     pos: -15.5,-9.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 2453
   type: DrinkMugMoebius
   components:
@@ -32228,8 +31948,6 @@ entities:
     pos: -8.476567,-17.420076
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 2454
   type: VendingMachineSnack
   components:
@@ -32279,8 +31997,6 @@ entities:
     pos: 9.543142,17.067865
     rot: 3.141592653589793 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 2461
   type: solid_wall
   components:
@@ -32540,8 +32256,6 @@ entities:
     pos: 42.5,13.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -32555,8 +32269,6 @@ entities:
     pos: 43.5,13.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -45534,8 +45246,6 @@ entities:
   - parent: 857
     pos: 27.48989,-1.4
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -45549,8 +45259,6 @@ entities:
     pos: 47.585052,4.443361
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 3940
   type: Table
   components:
@@ -45593,8 +45301,6 @@ entities:
     pos: 50.5,4.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 3946
   type: MVWireStack
   components:
@@ -45602,8 +45308,6 @@ entities:
     pos: 50.288177,4.693361
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 3947
   type: ApcExtensionCableStack
   components:
@@ -45611,8 +45315,6 @@ entities:
     pos: 50.053802,4.474611
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 3948
   type: GlassStack
   components:
@@ -45620,8 +45322,6 @@ entities:
     pos: 49.131927,4.677736
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 3949
   type: GlassStack
   components:
@@ -45629,8 +45329,6 @@ entities:
     pos: 48.788177,4.505861
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 3950
   type: MetalStack
   components:
@@ -45638,8 +45336,6 @@ entities:
     pos: 48.038177,4.677736
     rot: -1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 3951
   type: CrateGeneric
   components:
@@ -45647,8 +45343,6 @@ entities:
     pos: 45.585052,4.6
     rot: 1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
   - IsPlaceable: False
     type: PlaceableSurface
   - containers:
@@ -45662,8 +45356,6 @@ entities:
     pos: -29.463713,8.897233
     rot: 1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 3953
   type: Crowbar
   components:
@@ -45671,8 +45363,6 @@ entities:
     pos: -15.314676,-12.357978
     rot: 1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 3954
   type: Crowbar
   components:
@@ -45680,8 +45370,6 @@ entities:
     pos: -15.502176,-11.748603
     rot: 1.5707963267948966 rad
     type: Transform
-  - anchored: False
-    type: Collidable
 - uid: 3955
   type: Poweredlight
   components:
@@ -45704,20 +45392,17 @@ entities:
 - uid: 3957
   type: ApcExtensionCable
   components:
-  - parent: 857
-    pos: 3.5,2.5
+  - parent: 979
     type: Transform
   - deadThreshold: 100
     type: Destructible
 - uid: 3958
   type: FirelockGlass
   components:
-  - parent: 857
-    pos: -37.5,1.5
+  - parent: 980
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 3959
@@ -45736,8 +45421,7 @@ entities:
     pos: -36.5,1.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 3961
@@ -45747,8 +45431,7 @@ entities:
     pos: -35.5,1.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 3962
@@ -45766,8 +45449,7 @@ entities:
     pos: 5.5,0.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 3964
@@ -45777,8 +45459,7 @@ entities:
     pos: -4.5,-27.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
@@ -45790,33 +45471,41 @@ entities:
     pos: -4.5,-26.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
     type: Occluder
 - uid: 3966
-  type: AirlockGlass
+  type: FirelockGlass
   components:
   - parent: 857
-    pos: 2.5,2.5
-    rot: 1.5707963267948966 rad
+    pos: -26.5,3.5
+    rot: -1.5707963267948966 rad
     type: Transform
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
 - uid: 3967
-  type: AirlockGlass
+  type: FirelockGlass
   components:
   - parent: 857
-    pos: 2.5,6.5
-    rot: 1.5707963267948966 rad
+    pos: -21.5,3.5
+    rot: -1.5707963267948966 rad
     type: Transform
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
 - uid: 3968
-  type: AirlockGlass
+  type: FirelockGlass
   components:
   - parent: 857
-    pos: 3.5,6.5
-    rot: 1.5707963267948966 rad
+    pos: -21.5,4.5
+    rot: -1.5707963267948966 rad
     type: Transform
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
 - uid: 3969
   type: ApcExtensionCable
   components:
@@ -45840,31 +45529,39 @@ entities:
     pos: 2.5,-12.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 3972
-  type: AirlockGlass
+  type: FirelockGlass
   components:
   - parent: 857
-    pos: 3.5,2.5
-    rot: 1.5707963267948966 rad
+    pos: -26.5,4.5
+    rot: -1.5707963267948966 rad
     type: Transform
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
 - uid: 3973
-  type: AirlockGlass
+  type: FirelockGlass
   components:
   - parent: 857
-    pos: 4.5,2.5
-    rot: 1.5707963267948966 rad
+    pos: -26.5,5.5
+    rot: -1.5707963267948966 rad
     type: Transform
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
 - uid: 3974
-  type: AirlockGlass
+  type: FirelockGlass
   components:
   - parent: 857
-    pos: 4.5,6.5
-    rot: 1.5707963267948966 rad
+    pos: -21.5,5.5
+    rot: -1.5707963267948966 rad
     type: Transform
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
 - uid: 3975
   type: ApcExtensionCable
   components:
@@ -45889,8 +45586,7 @@ entities:
     pos: -7.5,7.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 3978
@@ -45900,8 +45596,7 @@ entities:
     pos: -4.5,5.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 3979
@@ -45929,8 +45624,7 @@ entities:
     pos: 1.5,-2.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 3982
@@ -45940,8 +45634,7 @@ entities:
     pos: 1.5,-1.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 3983
@@ -45973,8 +45666,7 @@ entities:
     pos: 15.5,-3.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 3986
@@ -46020,8 +45712,7 @@ entities:
     pos: -19.5,-11.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
@@ -46076,8 +45767,7 @@ entities:
     pos: 1.5,0.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 3997
@@ -46087,8 +45777,7 @@ entities:
     pos: 1.5,-0.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 3998
@@ -46107,8 +45796,7 @@ entities:
     pos: 22.5,-19.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
@@ -46120,8 +45808,7 @@ entities:
     pos: -6.5,-9.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
@@ -46133,8 +45820,7 @@ entities:
     pos: -2.5,2.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 4002
@@ -46144,8 +45830,7 @@ entities:
     pos: -3.5,2.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 4003
@@ -46158,19 +45843,20 @@ entities:
   - deadThreshold: 100
     type: Destructible
 - uid: 4004
-  type: AirlockGlass
+  type: CommsComputerCircuitboard
   components:
-  - parent: 857
-    pos: -21.5,3.5
-    rot: -1.5707963267948966 rad
+  - parent: 986
     type: Transform
 - uid: 4005
-  type: AirlockGlass
+  type: FirelockGlass
   components:
   - parent: 857
-    pos: -26.5,5.5
+    pos: -37.5,1.5
     rot: -1.5707963267948966 rad
     type: Transform
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
 - uid: 4006
   type: Firelock
   components:
@@ -46178,8 +45864,7 @@ entities:
     pos: -32.5,-9.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
@@ -46191,8 +45876,7 @@ entities:
     pos: -24.5,7.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 4008
@@ -46202,8 +45886,7 @@ entities:
     pos: -23.5,7.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 4009
@@ -46213,8 +45896,7 @@ entities:
     pos: -6.5,-10.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
@@ -46226,8 +45908,7 @@ entities:
     pos: -1.5,2.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 4011
@@ -46237,8 +45918,7 @@ entities:
     pos: -0.5,2.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 4012
@@ -46248,8 +45928,7 @@ entities:
     pos: -23.5,1.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 4013
@@ -46259,8 +45938,7 @@ entities:
     pos: -33.5,3.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 4014
@@ -46270,8 +45948,7 @@ entities:
     pos: -33.5,4.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 4015
@@ -46281,8 +45958,7 @@ entities:
     pos: -33.5,5.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 4016
@@ -46315,8 +45991,7 @@ entities:
     pos: 36.5,5.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 4020
@@ -46326,8 +46001,7 @@ entities:
     pos: 36.5,4.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
 - uid: 4021
@@ -46337,229 +46011,209 @@ entities:
     pos: 13.5,-19.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
     type: Occluder
 - uid: 4022
-  type: AirlockGlass
+  type: ResearchComputerCircuitboard
   components:
-  - parent: 857
-    pos: -26.5,4.5
-    rot: -1.5707963267948966 rad
+  - parent: 1065
     type: Transform
 - uid: 4023
-  type: AirlockGlass
-  components:
-  - parent: 857
-    pos: -26.5,3.5
-    rot: -1.5707963267948966 rad
-    type: Transform
-- uid: 4024
   type: Firelock
   components:
   - parent: 857
     pos: 13.5,-20.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
     type: Occluder
-- uid: 4025
+- uid: 4024
   type: LowWall
   components:
   - parent: 857
     pos: 12.5,-12.5
     rot: -1.5707963267948966 rad
     type: Transform
-- uid: 4026
+- uid: 4025
   type: FirelockGlass
   components:
   - parent: 857
     pos: -15.5,0.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4027
+- uid: 4026
   type: FirelockGlass
   components:
   - parent: 857
     pos: 5.5,-1.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4028
+- uid: 4027
   type: FirelockGlass
   components:
   - parent: 857
     pos: 5.5,-0.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4029
+- uid: 4028
   type: FirelockGlass
   components:
   - parent: 857
     pos: 5.5,-2.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4030
+- uid: 4029
   type: FirelockGlass
   components:
   - parent: 857
     pos: -4.5,4.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4031
+- uid: 4030
   type: FirelockGlass
   components:
   - parent: 857
     pos: -4.5,3.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4032
+- uid: 4031
   type: Firelock
   components:
   - parent: 857
     pos: 37.5,-5.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
     type: Occluder
-- uid: 4033
+- uid: 4032
   type: FirelockGlass
   components:
   - parent: 857
     pos: 0.5,-14.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4034
+- uid: 4033
   type: FirelockGlass
   components:
   - parent: 857
     pos: 13.5,0.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4035
-  type: AirlockGlass
+- uid: 4034
+  type: SpaceVillainArcadeComputerCircuitboard
   components:
-  - parent: 857
-    pos: -21.5,5.5
-    rot: -1.5707963267948966 rad
+  - parent: 1019
     type: Transform
-- uid: 4036
+- uid: 4035
   type: Firelock
   components:
   - parent: 857
     pos: -33.5,-9.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
     type: Occluder
-- uid: 4037
+- uid: 4036
   type: FirelockGlass
   components:
   - parent: 857
     pos: -24.5,1.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4038
-  type: ApcExtensionCable
+- uid: 4037
+  type: SupplyRequestComputerCircuitboard
   components:
-  - parent: 857
-    pos: -26.5,5.5
-    rot: 3.141592653589793 rad
+  - parent: 965
     type: Transform
-  - deadThreshold: 100
-    type: Destructible
-- uid: 4039
+- uid: 4038
   type: FirelockGlass
   components:
   - parent: 857
     pos: 3.5,15.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4040
+- uid: 4039
   type: FirelockGlass
   components:
   - parent: 857
     pos: 4.5,15.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4041
+- uid: 4040
   type: FirelockGlass
   components:
   - parent: 857
     pos: 2.5,15.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4042
+- uid: 4041
   type: Firelock
   components:
   - parent: 857
     pos: 25.5,-1.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
+  - enabled: False
+    type: Occluder
+- uid: 4042
+  type: Firelock
+  components:
+  - parent: 857
+    pos: 25.5,-2.5
+    rot: -1.5707963267948966 rad
+    type: Transform
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
@@ -46568,181 +46222,165 @@ entities:
   type: Firelock
   components:
   - parent: 857
-    pos: 25.5,-2.5
+    pos: -10.5,-7.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
     type: Occluder
 - uid: 4044
-  type: Firelock
-  components:
-  - parent: 857
-    pos: -10.5,-7.5
-    rot: -1.5707963267948966 rad
-    type: Transform
-  - hard: False
-    type: Collidable
-  - airBlocked: False
-    type: Airtight
-  - enabled: False
-    type: Occluder
-- uid: 4045
   type: AirlockMedicalGlass
   components:
   - parent: 857
     pos: 12.5,-10.5
     rot: -1.5707963267948966 rad
     type: Transform
-- uid: 4046
-  type: AirlockGlass
+- uid: 4045
+  type: CommsComputerCircuitboard
   components:
-  - parent: 857
-    pos: -21.5,4.5
-    rot: -1.5707963267948966 rad
+  - parent: 998
     type: Transform
-- uid: 4047
+- uid: 4046
   type: AirlockMedicalGlass
   components:
   - parent: 857
     pos: 12.5,-9.5
     rot: -1.5707963267948966 rad
     type: Transform
-- uid: 4048
+- uid: 4047
   type: FirelockGlass
   components:
   - parent: 857
     pos: -10.5,1.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4049
+- uid: 4048
   type: FirelockGlass
   components:
   - parent: 857
     pos: -10.5,0.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4050
+- uid: 4049
   type: FirelockGlass
   components:
   - parent: 857
     pos: 15.5,8.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4051
+- uid: 4050
   type: FirelockGlass
   components:
   - parent: 857
     pos: 36.5,3.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4052
+- uid: 4051
   type: FirelockGlass
   components:
   - parent: 857
     pos: -10.5,11.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4053
+- uid: 4052
   type: FirelockGlass
   components:
   - parent: 857
     pos: -10.5,10.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4054
+- uid: 4053
   type: FirelockGlass
   components:
   - parent: 857
     pos: -10.5,-0.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4055
+- uid: 4054
   type: Firelock
   components:
   - parent: 857
     pos: 38.5,-5.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
     type: Occluder
-- uid: 4056
+- uid: 4055
   type: FirelockGlass
   components:
   - parent: 857
     pos: 0.5,-15.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4057
+- uid: 4056
   type: FirelockGlass
   components:
   - parent: 857
     pos: 4.5,-12.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4058
+- uid: 4057
   type: FirelockGlass
   components:
   - parent: 857
     pos: 3.5,-12.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4059
+- uid: 4058
   type: Firelock
   components:
   - parent: 857
     pos: 11.5,14.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
+  - enabled: False
+    type: Occluder
+- uid: 4059
+  type: Firelock
+  components:
+  - parent: 857
+    pos: -17.5,17.5
+    rot: 3.141592653589793 rad
+    type: Transform
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
@@ -46751,29 +46389,15 @@ entities:
   type: Firelock
   components:
   - parent: 857
-    pos: -17.5,17.5
-    rot: 3.141592653589793 rad
+    pos: -10.5,-6.5
+    rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
     type: Occluder
 - uid: 4061
-  type: Firelock
-  components:
-  - parent: 857
-    pos: -10.5,-6.5
-    rot: -1.5707963267948966 rad
-    type: Transform
-  - hard: False
-    type: Collidable
-  - airBlocked: False
-    type: Airtight
-  - enabled: False
-    type: Occluder
-- uid: 4062
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -46782,7 +46406,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4063
+- uid: 4062
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -46791,7 +46415,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4064
+- uid: 4063
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -46800,7 +46424,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4065
+- uid: 4064
   type: HVWire
   components:
   - parent: 857
@@ -46809,18 +46433,17 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4066
+- uid: 4065
   type: FirelockGlass
   components:
   - parent: 857
     pos: 11.5,3.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4067
+- uid: 4066
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -46829,18 +46452,17 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4068
+- uid: 4067
   type: FirelockGlass
   components:
   - parent: 857
     pos: 11.5,5.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4069
+- uid: 4068
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -46849,68 +46471,65 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4070
+- uid: 4069
   type: FirelockGlass
   components:
   - parent: 857
     pos: 11.5,4.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4071
+- uid: 4070
   type: Window
   components:
   - parent: 857
     pos: 12.5,-7.5
     rot: -1.5707963267948966 rad
     type: Transform
-- uid: 4072
+- uid: 4071
   type: LowWall
   components:
   - parent: 857
     pos: 12.5,-11.5
     rot: -1.5707963267948966 rad
     type: Transform
-- uid: 4073
+- uid: 4072
   type: LowWall
   components:
   - parent: 857
     pos: 12.5,-7.5
     rot: -1.5707963267948966 rad
     type: Transform
-- uid: 4074
+- uid: 4073
   type: Window
   components:
   - parent: 857
     pos: 12.5,-12.5
     rot: -1.5707963267948966 rad
     type: Transform
-- uid: 4075
+- uid: 4074
   type: FirelockGlass
   components:
   - parent: 857
     pos: -8.5,6.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4076
+- uid: 4075
   type: FirelockGlass
   components:
   - parent: 857
     pos: -7.5,8.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4077
+- uid: 4076
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -46919,20 +46538,19 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4078
+- uid: 4077
   type: Firelock
   components:
   - parent: 857
     pos: 21.5,-19.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
     type: Occluder
-- uid: 4079
+- uid: 4078
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -46941,7 +46559,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4080
+- uid: 4079
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -46950,33 +46568,31 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4081
+- uid: 4080
   type: Firelock
   components:
   - parent: 857
     pos: -10.5,24.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
     type: Occluder
-- uid: 4082
+- uid: 4081
   type: Firelock
   components:
   - parent: 857
     pos: -10.5,25.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
     type: Occluder
-- uid: 4083
+- uid: 4082
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -46985,15 +46601,26 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4084
+- uid: 4083
   type: Firelock
   components:
   - parent: 857
     pos: -18.5,17.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
+  - enabled: False
+    type: Occluder
+- uid: 4084
+  type: Firelock
+  components:
+  - parent: 857
+    pos: 27.5,-11.5
+    rot: -1.5707963267948966 rad
+    type: Transform
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
@@ -47002,29 +46629,15 @@ entities:
   type: Firelock
   components:
   - parent: 857
-    pos: 27.5,-11.5
+    pos: 26.5,-11.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
     type: Occluder
 - uid: 4086
-  type: Firelock
-  components:
-  - parent: 857
-    pos: 26.5,-11.5
-    rot: -1.5707963267948966 rad
-    type: Transform
-  - hard: False
-    type: Collidable
-  - airBlocked: False
-    type: Airtight
-  - enabled: False
-    type: Occluder
-- uid: 4087
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47033,7 +46646,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4088
+- uid: 4087
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47042,7 +46655,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4089
+- uid: 4088
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47051,7 +46664,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4090
+- uid: 4089
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47060,7 +46673,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4091
+- uid: 4090
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47069,7 +46682,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4092
+- uid: 4091
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47078,7 +46691,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4093
+- uid: 4092
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47087,7 +46700,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4094
+- uid: 4093
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47096,7 +46709,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4095
+- uid: 4094
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47105,7 +46718,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4096
+- uid: 4095
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47114,7 +46727,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4097
+- uid: 4096
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47123,7 +46736,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4098
+- uid: 4097
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47132,7 +46745,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4099
+- uid: 4098
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47141,7 +46754,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4100
+- uid: 4099
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47150,7 +46763,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4101
+- uid: 4100
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47159,7 +46772,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4102
+- uid: 4101
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47168,7 +46781,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4103
+- uid: 4102
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47177,7 +46790,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4104
+- uid: 4103
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47186,7 +46799,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4105
+- uid: 4104
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47195,7 +46808,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4106
+- uid: 4105
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47204,7 +46817,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4107
+- uid: 4106
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47213,7 +46826,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4108
+- uid: 4107
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47222,7 +46835,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4109
+- uid: 4108
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47231,7 +46844,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4110
+- uid: 4109
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47240,7 +46853,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4111
+- uid: 4110
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47249,7 +46862,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4112
+- uid: 4111
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47258,7 +46871,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4113
+- uid: 4112
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47267,21 +46880,21 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4114
+- uid: 4113
   type: Catwalk
   components:
   - parent: 857
     pos: -0.5,-23.5
     rot: -1.5707963267948966 rad
     type: Transform
-- uid: 4115
+- uid: 4114
   type: Catwalk
   components:
   - parent: 857
     pos: 0.5,-23.5
     rot: -1.5707963267948966 rad
     type: Transform
-- uid: 4116
+- uid: 4115
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47290,7 +46903,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4117
+- uid: 4116
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47299,7 +46912,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4118
+- uid: 4117
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47308,7 +46921,7 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4119
+- uid: 4118
   type: ApcExtensionCable
   components:
   - parent: 857
@@ -47317,62 +46930,125 @@ entities:
     type: Transform
   - deadThreshold: 100
     type: Destructible
-- uid: 4120
+- uid: 4119
   type: ReinforcedWindow
   components:
   - parent: 857
     pos: 3.5,27.5
     rot: 1.5707963267948966 rad
     type: Transform
-- uid: 4121
+- uid: 4120
   type: Firelock
   components:
   - parent: 857
     pos: -22.5,13.5
     rot: 3.141592653589793 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
   - enabled: False
     type: Occluder
-- uid: 4122
+- uid: 4121
   type: FirelockGlass
   components:
   - parent: 857
     pos: -9.5,6.5
     rot: -1.5707963267948966 rad
     type: Transform
-  - hard: False
-    type: Collidable
+  - type: Physics
   - airBlocked: False
     type: Airtight
-- uid: 4123
+- uid: 4122
   type: AirlockCommandGlassLocked
   components:
   - parent: 857
     pos: 2.5,27.5
     rot: 1.5707963267948966 rad
     type: Transform
-- uid: 4124
+- uid: 4123
   type: ReinforcedWindow
   components:
   - parent: 857
     pos: 9.5,-21.5
     rot: 1.5707963267948966 rad
     type: Transform
-- uid: 4125
+- uid: 4124
   type: ReinforcedWindow
   components:
   - parent: 857
     pos: 10.5,-21.5
     rot: 1.5707963267948966 rad
     type: Transform
-- uid: 4126
+- uid: 4125
   type: ReinforcedWindow
   components:
   - parent: 857
     pos: 11.5,-21.5
     rot: 1.5707963267948966 rad
     type: Transform
+- uid: 4126
+  type: FirelockGlass
+  components:
+  - parent: 857
+    pos: 5.5,5.5
+    rot: -1.5707963267948966 rad
+    type: Transform
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
+- uid: 4127
+  type: FirelockGlass
+  components:
+  - parent: 857
+    pos: 5.5,4.5
+    rot: -1.5707963267948966 rad
+    type: Transform
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
+- uid: 4128
+  type: FirelockGlass
+  components:
+  - parent: 857
+    pos: 5.5,3.5
+    rot: -1.5707963267948966 rad
+    type: Transform
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
+- uid: 4129
+  type: FirelockGlass
+  components:
+  - parent: 857
+    pos: 1.5,5.5
+    rot: -1.5707963267948966 rad
+    type: Transform
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
+- uid: 4130
+  type: FirelockGlass
+  components:
+  - parent: 857
+    pos: 1.5,4.5
+    rot: -1.5707963267948966 rad
+    type: Transform
+  - type: Physics
+  - airBlocked: False
+    type: Airtight
+- uid: 4131
+  type: SuspicionHitscanSpawner
+  components:
+  - parent: 857
+    pos: -27.5,7.5
+    rot: -1.5707963267948966 rad
+    type: Transform
+- uid: 4132
+  type: SuspicionGrenadesSpawner
+  components:
+  - parent: 857
+    pos: -20.5,-5.5
+    rot: -1.5707963267948966 rad
+    type: Transform
+...

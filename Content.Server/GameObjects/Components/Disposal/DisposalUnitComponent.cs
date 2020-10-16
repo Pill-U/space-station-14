@@ -136,8 +136,8 @@ namespace Content.Server.GameObjects.Components.Disposal
                 return false;
             }
 
-            if (!entity.TryGetComponent(out ICollidableComponent? collidable) ||
-                !collidable.CanCollide)
+            if (!entity.TryGetComponent(out IPhysicsComponent? physics) ||
+                !physics.CanCollide)
             {
                 return false;
             }
@@ -409,7 +409,7 @@ namespace Content.Server.GameObjects.Components.Disposal
             {
                 return;
             }
-            
+
             if (!Anchored)
             {
                 appearance.SetData(Visuals.VisualState, VisualState.UnAnchored);
@@ -549,9 +549,9 @@ namespace Content.Server.GameObjects.Components.Disposal
                 Logger.WarningS("VitalComponentMissing", $"Disposal unit {Owner.Uid} is missing an anchorable component");
             }
 
-            if (Owner.TryGetComponent(out CollidableComponent? collidable))
+            if (Owner.TryGetComponent(out IPhysicsComponent? physics))
             {
-                collidable.AnchoredChanged += UpdateVisualState;
+                physics.AnchoredChanged += UpdateVisualState;
             }
 
             if (Owner.TryGetComponent(out PowerReceiverComponent? receiver))
@@ -564,9 +564,9 @@ namespace Content.Server.GameObjects.Components.Disposal
 
         public override void OnRemove()
         {
-            if (Owner.TryGetComponent(out ICollidableComponent? collidable))
+            if (Owner.TryGetComponent(out IPhysicsComponent? physics))
             {
-                collidable.AnchoredChanged -= UpdateVisualState;
+                physics.AnchoredChanged -= UpdateVisualState;
             }
 
             if (Owner.TryGetComponent(out PowerReceiverComponent? receiver))
@@ -608,7 +608,7 @@ namespace Content.Server.GameObjects.Components.Disposal
                     break;
             }
         }
-    
+
         bool IsValidInteraction(ITargetedInteractEventArgs eventArgs)
         {
             if (!ActionBlockerSystem.CanInteract(eventArgs.User))
@@ -640,8 +640,8 @@ namespace Content.Server.GameObjects.Components.Disposal
             {
                 return false;
             }
-            // Duplicated code here, not sure how else to get actor inside to make UserInterface happy. 
-          
+            // Duplicated code here, not sure how else to get actor inside to make UserInterface happy.
+
             if (IsValidInteraction(eventArgs))
             {
                 UserInterface?.Open(actor.playerSession);
@@ -674,19 +674,19 @@ namespace Content.Server.GameObjects.Components.Disposal
 
         bool IDragDropOn.CanDragDropOn(DragDropEventArgs eventArgs)
         {
-            return CanInsert(eventArgs.Dropped);
+            return CanInsert(eventArgs.Dragged);
         }
 
         bool IDragDropOn.DragDropOn(DragDropEventArgs eventArgs)
         {
-            _ = TryInsert(eventArgs.Dropped, eventArgs.User);
+            _ = TryInsert(eventArgs.Dragged, eventArgs.User);
             return true;
         }
-        
+
         void IThrowCollide.HitBy(ThrowCollideEventArgs eventArgs)
         {
-            if (!CanInsert(eventArgs.Thrown) || 
-                IoCManager.Resolve<IRobustRandom>().NextDouble() > 0.75 || 
+            if (!CanInsert(eventArgs.Thrown) ||
+                IoCManager.Resolve<IRobustRandom>().NextDouble() > 0.75 ||
                 !_container.Insert(eventArgs.Thrown))
             {
                 return;
