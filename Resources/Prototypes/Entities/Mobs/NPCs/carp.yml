@@ -2,7 +2,7 @@
   save: false
   name: space carp
   id: CarpMob_Content
-  description:
+  description: It's a space carp.
   drawdepth: Mobs
   suffix: AI
   components:
@@ -34,9 +34,11 @@
       - Opaque
       - MobImpassable
   - type: Damageable
-    criticalThreshold: 50
-    deadThreshold: 100
-  - type: MobStateManager
+  - type: MobState
+    thresholds:
+      0: !type:NormalMobState {}
+      50: !type:CriticalMobState {}
+      100: !type:DeadMobState {}
   - type: HeatResistance
   - type: CombatMode
   - type: Teleportable
@@ -58,7 +60,7 @@
   name: magicarp
   parent: CarpMob_Content
   id: MagicarpMob_Content
-  description:
+  description: Looks like some kind of fish. Might be magical.
   drawdepth: Mobs
   suffix: AI
   components:
@@ -81,7 +83,7 @@
   name: holocarp
   parent: CarpMob_Content
   id: HolocarpMob_Content
-  description:
+  description: Carp made out of holographic energies.
   drawdepth: Mobs
   suffix: AI
   components:

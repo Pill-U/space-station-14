@@ -1,10 +1,12 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using Content.Server.GameObjects.Components.Body.Behavior;
 using Content.Server.GameObjects.Components.Chemistry;
 using Content.Server.GameObjects.Components.Fluids;
 using Content.Server.GameObjects.EntitySystems;
 using Content.Shared.Audio;
 using Content.Shared.Chemistry;
+using Content.Shared.GameObjects.Components.Body;
 using Content.Shared.GameObjects.Components.Body.Mechanism;
 using Content.Shared.GameObjects.Components.Nutrition;
 using Content.Shared.GameObjects.EntitySystems;
@@ -112,7 +114,7 @@ namespace Content.Server.GameObjects.Components.Nutrition
         }
 
         //Force feeding a drink to someone.
-        void IAfterInteract.AfterInteract(AfterInteractEventArgs eventArgs)
+        async Task IAfterInteract.AfterInteract(AfterInteractEventArgs eventArgs)
         {
             TryUseDrink(eventArgs.Target, forced: true);
         }
@@ -151,7 +153,8 @@ namespace Content.Server.GameObjects.Components.Nutrition
                 return false;
             }
 
-            if (!target.TryGetMechanismBehaviors<StomachBehaviorComponent>(out var stomachs))
+            if (!target.TryGetComponent(out IBody body) ||
+                !body.TryGetMechanismBehaviors<StomachBehavior>(out var stomachs))
             {
                 return false;
             }

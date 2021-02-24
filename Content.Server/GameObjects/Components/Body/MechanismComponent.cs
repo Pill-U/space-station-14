@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Content.Server.Utility;
 using Content.Shared.GameObjects.Components.Body;
 using Content.Shared.GameObjects.Components.Body.Mechanism;
@@ -35,7 +36,7 @@ namespace Content.Server.GameObjects.Components.Body
             }
         }
 
-        void IAfterInteract.AfterInteract(AfterInteractEventArgs eventArgs)
+        async Task IAfterInteract.AfterInteract(AfterInteractEventArgs eventArgs)
         {
             if (eventArgs.Target == null)
             {
@@ -47,7 +48,7 @@ namespace Content.Server.GameObjects.Components.Body
             PerformerCache = null;
             BodyCache = null;
 
-            if (eventArgs.Target.TryGetBody(out var body))
+            if (eventArgs.Target.TryGetComponent(out IBody? body))
             {
                 SendBodyPartListToUser(eventArgs, body);
             }
@@ -155,26 +156,6 @@ namespace Content.Server.GameObjects.Components.Body
                 case ReceiveBodyPartSurgeryUIMessage msg:
                     HandleReceiveBodyPart(msg.SelectedOptionId);
                     break;
-            }
-        }
-
-        protected override void OnAddedToPart()
-        {
-            base.OnAddedToPart();
-
-            if (Owner.TryGetComponent(out SpriteComponent? sprite))
-            {
-                sprite.Visible = false;
-            }
-        }
-
-        protected override void OnRemovedFromPart(IBodyPart old)
-        {
-            base.OnRemovedFromPart(old);
-
-            if (Owner.TryGetComponent(out SpriteComponent? sprite))
-            {
-                sprite.Visible = true;
             }
         }
     }
