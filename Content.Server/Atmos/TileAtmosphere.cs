@@ -1,4 +1,5 @@
-﻿#nullable enable annotations
+#nullable disable warnings
+#nullable enable annotations
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -11,17 +12,15 @@ using Content.Shared.Atmos;
 using Content.Shared.Audio;
 using Content.Shared.Maps;
 using JetBrains.Annotations;
-using Robust.Server.GameObjects.EntitySystems;
-using Robust.Server.GameObjects.EntitySystems.TileLookup;
+using Robust.Server.GameObjects;
+using Robust.Shared.Audio;
 using Robust.Shared.Containers;
-using Robust.Shared.GameObjects.Components;
-using Robust.Shared.GameObjects.Systems;
-using Robust.Shared.Interfaces.GameObjects;
-using Robust.Shared.Interfaces.Map;
-using Robust.Shared.Interfaces.Random;
+using Robust.Shared.GameObjects;
 using Robust.Shared.IoC;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
+using Robust.Shared.Physics;
+using Robust.Shared.Player;
 using Robust.Shared.Random;
 using Robust.Shared.ViewVariables;
 
@@ -140,52 +139,6 @@ namespace Content.Server.Atmos
             _temperatureArchived = Temperature;
         }
 
-        public void HotspotExpose(float exposedTemperature, float exposedVolume, bool soh = false)
-        {
-            if (Air == null)
-                return;
-
-            var oxygen = Air.GetMoles(Gas.Oxygen);
-
-            if (oxygen < 0.5f)
-                return;
-
-            var phoron = Air.GetMoles(Gas.Phoron);
-            var tritium = Air.GetMoles(Gas.Tritium);
-
-            if (Hotspot.Valid)
-            {
-                if (soh)
-                {
-                    if (phoron > 0.5f || tritium > 0.5f)
-                    {
-                        if (Hotspot.Temperature < exposedTemperature)
-                            Hotspot.Temperature = exposedTemperature;
-                        if (Hotspot.Volume < exposedVolume)
-                            Hotspot.Volume = exposedVolume;
-                    }
-                }
-
-                return;
-            }
-
-            if ((exposedTemperature > Atmospherics.PhoronMinimumBurnTemperature) && (phoron > 0.5f || tritium > 0.5f))
-            {
-                Hotspot = new Hotspot
-                {
-                    Volume = exposedVolume * 25f,
-                    Temperature = exposedTemperature,
-                    SkippedFirstProcess = _currentCycle > _gridAtmosphereComponent.UpdateCounter
-                };
-
-                Hotspot.Start();
-
-                _gridAtmosphereComponent.AddActiveTile(this);
-                _gridAtmosphereComponent.AddHotspotTile(this);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void HighPressureMovements()
         {
             // TODO ATMOS finish this
@@ -193,20 +146,21 @@ namespace Content.Server.Atmos
             if(PressureDifference > 15)
             {
                 if(_soundCooldown == 0)
-                    EntitySystem.Get<AudioSystem>().PlayAtCoords("/Audio/Effects/space_wind.ogg",
-                        GridIndices.ToEntityCoordinates(GridIndex, _mapManager), AudioHelpers.WithVariation(0.125f).WithVolume(MathHelper.Clamp(PressureDifference / 10, 10, 100)));
+                {
+                    var coordinates = GridIndices.ToEntityCoordinates(GridIndex, _mapManager);
+                    SoundSystem.Play(Filter.Pvs(coordinates), "/Audio/Effects/space_wind.ogg",
+                        coordinates, AudioHelpers.WithVariation(0.125f).WithVolume(MathHelper.Clamp(PressureDifference / 10, 10, 100)));
+                }
             }
 
             foreach (var entity in _gridTileLookupSystem.GetEntitiesIntersecting(GridIndex, GridIndices))
             {
-                if (!entity.TryGetComponent(out IPhysicsComponent physics)
+                if (!entity.TryGetComponent(out IPhysBody physics)
                     || !entity.IsMovedByPressure(out var pressure)
                     || entity.IsInContainer())
                     continue;
 
-                physics.WakeBody();
-
-                var pressureMovements = physics.EnsureController<HighPressureMovementController>();
+                var pressureMovements = physics.Owner.EnsureComponent<MovedByPressureComponent>();
                 if (pressure.LastHighPressureMovementAirCycle < _gridAtmosphereComponent.UpdateCounter)
                 {
                     pressureMovements.ExperiencePressureDifference(_gridAtmosphereComponent.UpdateCounter, PressureDifference, _pressureDirection, 0, PressureSpecificTarget?.GridIndices.ToEntityCoordinates(GridIndex, _mapManager) ?? EntityCoordinates.Invalid);
@@ -241,7 +195,6 @@ namespace Content.Server.Atmos
             }
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void EqualizePressureInZone(int cycleNum)
         {
             if (Air == null || (_tileAtmosInfo.LastCycle >= cycleNum)) return; // Already done.
@@ -571,10 +524,9 @@ namespace Content.Server.Atmos
             ArrayPool<TileAtmosphere>.Shared.Return(takerTiles);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void FinalizeEq()
         {
-            var transferDirections = new float[Atmospherics.Directions];
+            Span<float> transferDirections = stackalloc float[Atmospherics.Directions];
             var hasTransferDirs = false;
             for (var i = 0; i < Atmospherics.Directions; i++)
             {
@@ -609,7 +561,7 @@ namespace Content.Server.Atmos
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void FinalizeEqNeighbors(in float[] transferDirs)
+        private void FinalizeEqNeighbors(ReadOnlySpan<float> transferDirs)
         {
             for (var i = 0; i < Atmospherics.Directions; i++)
             {
@@ -638,13 +590,12 @@ namespace Content.Server.Atmos
             _adjacentTiles[direction.ToIndex()]._tileAtmosInfo[direction.GetOpposite()] -= amount;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ProcessCell(int fireCount, bool spaceWind = true)
         {
             // Can't process a tile without air
             if (Air == null)
             {
-                Excited = false;
+                _gridAtmosphereComponent.RemoveActiveTile(this);
                 return;
             }
 
@@ -748,6 +699,11 @@ namespace Content.Server.Atmos
                 return;
             }
 
+            if (!Excited)
+            {
+                _gridAtmosphereComponent.AddActiveTile(this);
+            }
+
             if (!Hotspot.SkippedFirstProcess)
             {
                 Hotspot.SkippedFirstProcess = true;
@@ -757,7 +713,7 @@ namespace Content.Server.Atmos
             ExcitedGroup?.ResetCooldowns();
 
             if ((Hotspot.Temperature < Atmospherics.FireMinimumTemperatureToExist) || (Hotspot.Volume <= 1f)
-                || Air == null || Air.Gases[(int)Gas.Oxygen] < 0.5f || (Air.Gases[(int)Gas.Phoron] < 0.5f && Air.GetMoles(Gas.Tritium) < 0.5f))
+                || Air == null || Air.Gases[(int)Gas.Oxygen] < 0.5f || (Air.Gases[(int)Gas.Plasma] < 0.5f && Air.GetMoles(Gas.Tritium) < 0.5f))
             {
                 Hotspot = new Hotspot();
                 UpdateVisuals();
@@ -798,7 +754,7 @@ namespace Content.Server.Atmos
         {
             if (Air == null || !Hotspot.Valid) return;
 
-            Hotspot.Bypassing = Hotspot.SkippedFirstProcess && (Hotspot.Volume > Atmospherics.CellVolume*0.95);
+            Hotspot.Bypassing = Hotspot.SkippedFirstProcess && Hotspot.Volume > Air.Volume*0.95f;
 
             if (Hotspot.Bypassing)
             {
@@ -824,6 +780,51 @@ namespace Content.Server.Atmos
 
                     fireAct.FireAct(Hotspot.Temperature, Hotspot.Volume);
                 }
+            }
+        }
+
+        public void HotspotExpose(float exposedTemperature, float exposedVolume, bool soh = false)
+        {
+            if (Air == null)
+                return;
+
+            var oxygen = Air.GetMoles(Gas.Oxygen);
+
+            if (oxygen < 0.5f)
+                return;
+
+            var plasma = Air.GetMoles(Gas.Plasma);
+            var tritium = Air.GetMoles(Gas.Tritium);
+
+            if (Hotspot.Valid)
+            {
+                if (soh)
+                {
+                    if (plasma > 0.5f || tritium > 0.5f)
+                    {
+                        if (Hotspot.Temperature < exposedTemperature)
+                            Hotspot.Temperature = exposedTemperature;
+                        if (Hotspot.Volume < exposedVolume)
+                            Hotspot.Volume = exposedVolume;
+                    }
+                }
+
+                return;
+            }
+
+            if ((exposedTemperature > Atmospherics.PlasmaMinimumBurnTemperature) && (plasma > 0.5f || tritium > 0.5f))
+            {
+                Hotspot = new Hotspot
+                {
+                    Volume = exposedVolume * 25f,
+                    Temperature = exposedTemperature,
+                    SkippedFirstProcess = _currentCycle > _gridAtmosphereComponent.UpdateCounter
+                };
+
+                Hotspot.Start();
+
+                _gridAtmosphereComponent.AddActiveTile(this);
+                _gridAtmosphereComponent.AddHotspotTile(this);
             }
         }
 
@@ -973,7 +974,6 @@ namespace Content.Server.Atmos
             return AtmosDirection.All;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ExplosivelyDepressurize(int cycleNum)
         {
             if (Air == null) return;
@@ -1147,7 +1147,6 @@ namespace Content.Server.Atmos
             _gridAtmosphereComponent.GasTileOverlaySystem.Invalidate(GridIndex, GridIndices);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UpdateAdjacent()
         {
             for (var i = 0; i < Atmospherics.Directions; i++)

@@ -3,14 +3,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Content.Server.GameObjects.Components.Body.Behavior;
 using Content.Shared.GameObjects.Components.Body;
-using Content.Shared.GameObjects.Components.Body.Behavior;
 using Content.Shared.GameObjects.Components.Body.Mechanism;
 using Content.Shared.GameObjects.Components.Body.Part;
 using NUnit.Framework;
-using Robust.Shared.Interfaces.GameObjects;
-using Robust.Shared.Interfaces.Map;
+using Robust.Shared.GameObjects;
 using Robust.Shared.IoC;
 using Robust.Shared.Map;
+using Robust.Shared.Maths;
 
 namespace Content.IntegrationTests.Tests.Body
 {
@@ -103,7 +102,7 @@ namespace Content.IntegrationTests.Tests.Body
             }
         }
 
-        private const string PROTOTYPES = @"
+        private const string Prototypes = @"
 - type: entity
   name: HumanBodyDummy
   id: HumanBodyDummy
@@ -117,23 +116,22 @@ namespace Content.IntegrationTests.Tests.Body
         [Test]
         public async Task EventsTest()
         {
-            var options = new ServerContentIntegrationOption {ExtraPrototypes = PROTOTYPES};
+            var options = new ServerContentIntegrationOption {ExtraPrototypes = Prototypes};
             var server = StartServerDummyTicker(options);
 
             await server.WaitAssertion(() =>
             {
                 var mapManager = IoCManager.Resolve<IMapManager>();
 
-                var mapId = new MapId(0);
-                mapManager.CreateNewMapEntity(mapId);
+                var mapId = mapManager.CreateMap();
 
                 var entityManager = IoCManager.Resolve<IEntityManager>();
-                var human = entityManager.SpawnEntity("HumanBodyDummy", MapCoordinates.Nullspace);
+                var human = entityManager.SpawnEntity("HumanBodyDummy", new MapCoordinates(Vector2.Zero, mapId));
 
                 Assert.That(human.TryGetComponent(out IBody? body));
                 Assert.NotNull(body);
 
-                var centerPart = body!.CenterPart();
+                var centerPart = body!.CenterPart;
                 Assert.NotNull(centerPart);
 
                 Assert.That(body.TryGetSlot(centerPart!, out var centerSlot));
@@ -198,7 +196,7 @@ namespace Content.IntegrationTests.Tests.Body
 
                 behavior.ResetAll();
 
-                body.TryAddPart(centerSlot!, centerPart, true);
+                body.SetPart(centerSlot!.Id, centerPart);
 
                 Assert.That(behavior.WasAddedToBody);
                 Assert.False(behavior.WasAddedToPart);

@@ -1,8 +1,8 @@
-﻿#nullable enable
+#nullable enable
+// ReSharper disable once RedundantUsingDirective
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Content.Server.Atmos;
@@ -10,23 +10,19 @@ using Content.Server.GameObjects.Components.Atmos.Piping;
 using Content.Server.GameObjects.Components.NodeContainer.NodeGroups;
 using Content.Server.GameObjects.EntitySystems;
 using Content.Server.GameObjects.EntitySystems.Atmos;
-using Content.Shared;
 using Content.Shared.Atmos;
 using Content.Shared.Maps;
-using Robust.Server.GameObjects.EntitySystems.TileLookup;
-using Robust.Server.Interfaces.GameObjects;
+using Robust.Server.GameObjects;
 using Robust.Shared.GameObjects;
-using Robust.Shared.GameObjects.ComponentDependencies;
-using Robust.Shared.GameObjects.Components.Map;
-using Robust.Shared.GameObjects.Systems;
-using Robust.Shared.Interfaces.Configuration;
-using Robust.Shared.Interfaces.Map;
+using Robust.Shared.IoC;
 using Robust.Shared.Log;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
 using Robust.Shared.Serialization;
+using Robust.Shared.Serialization.Manager.Attributes;
 using Robust.Shared.Timing;
 using Robust.Shared.ViewVariables;
+using Dependency = Robust.Shared.IoC.DependencyAttribute;
 
 namespace Content.Server.GameObjects.Components.Atmos
 {
@@ -35,11 +31,11 @@ namespace Content.Server.GameObjects.Components.Atmos
     /// </summary>
     [ComponentReference(typeof(IGridAtmosphereComponent))]
     [RegisterComponent, Serializable]
-    public class GridAtmosphereComponent : Component, IGridAtmosphereComponent
+    public class GridAtmosphereComponent : Component, IGridAtmosphereComponent, ISerializationHooks
     {
-        [Robust.Shared.IoC.Dependency] private IMapManager _mapManager = default!;
-        [Robust.Shared.IoC.Dependency] private ITileDefinitionManager _tileDefinitionManager = default!;
-        [Robust.Shared.IoC.Dependency] private IServerEntityManager _serverEntityManager = default!;
+        [Dependency] private IMapManager _mapManager = default!;
+        [Dependency] private ITileDefinitionManager _tileDefinitionManager = default!;
+        [Dependency] private IServerEntityManager _serverEntityManager = default!;
 
         public GridTileLookupSystem GridTileLookupSystem { get; private set; } = default!;
         internal GasTileOverlaySystem GasTileOverlaySystem { get; private set; } = default!;
@@ -52,12 +48,12 @@ namespace Content.Server.GameObjects.Components.Atmos
 
         public override string Name => "GridAtmosphere";
 
-        private bool _paused = false;
-        private float _timer = 0f;
+        private bool _paused;
+        private float _timer;
         private Stopwatch _stopwatch = new();
         private GridId _gridId;
 
-        [ComponentDependency] private IMapGridComponent? _mapGridComponent = default!;
+        [ComponentDependency] private IMapGridComponent? _mapGridComponent;
 
         [ViewVariables]
         public int UpdateCounter { get; private set; } = 0;
@@ -73,6 +69,12 @@ namespace Content.Server.GameObjects.Components.Atmos
 
         [ViewVariables]
         private double _excitedGroupLastProcess;
+
+        [DataField("uniqueMixes")]
+        private List<GasMixture>? _uniqueMixes;
+
+        [DataField("tiles")]
+        private Dictionary<Vector2i, int>? _tiles;
 
         [ViewVariables]
         protected readonly Dictionary<Vector2i, TileAtmosphere> Tiles = new(1000);
@@ -146,6 +148,11 @@ namespace Content.Server.GameObjects.Components.Atmos
         [ViewVariables]
         private ProcessState _state = ProcessState.TileEqualize;
 
+        public GridAtmosphereComponent()
+        {
+            _paused = false;
+        }
+
         private enum ProcessState
         {
             TileEqualize,
@@ -166,9 +173,59 @@ namespace Content.Server.GameObjects.Components.Atmos
             indices.PryTile(_gridId, _mapManager, _tileDefinitionManager, _serverEntityManager);
         }
 
+        void ISerializationHooks.BeforeSerialization()
+        {
+            var uniqueMixes = new List<GasMixture>();
+            var uniqueMixHash = new Dictionary<GasMixture, int>();
+            var tiles = new Dictionary<Vector2i, int>();
+
+            foreach (var (indices, tile) in Tiles)
+            {
+                if (tile.Air == null) continue;
+
+                if (uniqueMixHash.TryGetValue(tile.Air, out var index))
+                {
+                    tiles[indices] = index;
+                    continue;
+                }
+
+                uniqueMixes.Add(tile.Air);
+                var newIndex = uniqueMixes.Count - 1;
+                uniqueMixHash[tile.Air] = newIndex;
+                tiles[indices] = newIndex;
+            }
+
+            if (uniqueMixes.Count == 0) uniqueMixes = null;
+            if (tiles.Count == 0) tiles = null;
+
+            _uniqueMixes = uniqueMixes;
+            _tiles = tiles;
+        }
+
         public override void Initialize()
         {
             base.Initialize();
+
+            Tiles.Clear();
+
+            if (_tiles != null && Owner.TryGetComponent(out IMapGridComponent? mapGrid))
+            {
+                foreach (var (indices, mix) in _tiles)
+                {
+                    try
+                    {
+                        Tiles.Add(indices, new TileAtmosphere(this, mapGrid.GridIndex, indices, (GasMixture) _uniqueMixes![mix].Clone()));
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        Logger.Error($"Error during atmos serialization! Tile at {indices} points to an unique mix ({mix}) out of range!");
+                        throw;
+                    }
+
+                    Invalidate(indices);
+                }
+            }
+
             GridTileLookupSystem = EntitySystem.Get<GridTileLookupSystem>();
             GasTileOverlaySystem = EntitySystem.Get<GasTileOverlaySystem>();
             AtmosphereSystem = EntitySystem.Get<AtmosphereSystem>();
@@ -221,15 +278,29 @@ namespace Content.Server.GameObjects.Components.Atmos
                     Tiles[indices] = tile;
                 }
 
-                if (IsSpace(indices))
+                var isAirBlocked = IsAirBlocked(indices);
+
+                if (IsSpace(indices) && !isAirBlocked)
                 {
                     tile.Air = new GasMixture(GetVolumeForCells(1), AtmosphereSystem);
                     tile.Air.MarkImmutable();
                     Tiles[indices] = tile;
 
-                } else if (IsAirBlocked(indices))
+                } else if (isAirBlocked)
                 {
-                    tile.Air = null;
+                    var nullAir = false;
+
+                    foreach (var airtight in GetObstructingComponents(indices))
+                    {
+                        if (airtight.NoAirWhenFullyAirBlocked)
+                        {
+                            nullAir = true;
+                            break;
+                        }
+                    }
+
+                    if(nullAir)
+                        tile.Air = null;
                 }
                 else
                 {
@@ -302,7 +373,7 @@ namespace Content.Server.GameObjects.Components.Atmos
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void AddActiveTile(TileAtmosphere tile)
         {
-            if (tile?.GridIndex != _gridId) return;
+            if (tile?.GridIndex != _gridId || tile.Air == null) return;
             tile.Excited = true;
             _activeTiles.Add(tile);
         }
@@ -336,7 +407,7 @@ namespace Content.Server.GameObjects.Components.Atmos
 
         public virtual void AddSuperconductivityTile(TileAtmosphere tile)
         {
-            if (tile?.GridIndex != _gridId) return;
+            if (tile?.GridIndex != _gridId || !AtmosphereSystem.Superconduction) return;
             _superconductivityTiles.Add(tile);
         }
 
@@ -443,6 +514,11 @@ namespace Content.Server.GameObjects.Components.Atmos
             return _mapGridComponent.Grid.GetTileRef(indices).IsSpace();
         }
 
+        public Dictionary<AtmosDirection, TileAtmosphere> GetAdjacentTiles(EntityCoordinates coordinates, bool includeAirBlocked = false)
+        {
+            return GetAdjacentTiles(coordinates.ToVector2i(_serverEntityManager, _mapManager), includeAirBlocked);
+        }
+
         public Dictionary<AtmosDirection, TileAtmosphere> GetAdjacentTiles(Vector2i indices, bool includeAirBlocked = false)
         {
             var sides = new Dictionary<AtmosDirection, TileAtmosphere>();
@@ -535,7 +611,10 @@ namespace Content.Server.GameObjects.Components.Atmos
                     }
 
                     _paused = false;
-                    _state = ProcessState.Superconductivity;
+                    // Next state depends on whether superconduction is enabled or not.
+                    // Note: We do this here instead of on the tile equalization step to prevent ending it early.
+                    //       Therefore, a change to this CVar might only be applied after that step is over.
+                    _state = AtmosphereSystem.Superconduction ? ProcessState.Superconductivity : ProcessState.PipeNet;
                     break;
                 case ProcessState.Superconductivity:
                     if (!ProcessSuperconductivity(_paused, maxProcessTime))
@@ -844,60 +923,6 @@ namespace Content.Server.GameObjects.Components.Atmos
         public void Dispose()
         {
 
-        }
-
-        public override void ExposeData(ObjectSerializer serializer)
-        {
-            base.ExposeData(serializer);
-            if (serializer.Reading && Owner.TryGetComponent(out IMapGridComponent? mapGrid))
-            {
-                var gridId = mapGrid.Grid.Index;
-
-                if (!serializer.TryReadDataField("uniqueMixes", out List<GasMixture>? uniqueMixes) ||
-                    !serializer.TryReadDataField("tiles", out Dictionary<Vector2i, int>? tiles))
-                    return;
-
-                Tiles.Clear();
-
-                foreach (var (indices, mix) in tiles!)
-                {
-                    try
-                    {
-                        Tiles.Add(indices, new TileAtmosphere(this, gridId, indices, (GasMixture)uniqueMixes![mix].Clone()));
-                    }
-                    catch (ArgumentOutOfRangeException)
-                    {
-                        Logger.Error($"Error during atmos serialization! Tile at {indices} points to an unique mix ({mix}) out of range!");
-                        throw;
-                    }
-
-                    Invalidate(indices);
-                }
-            }
-            else if (serializer.Writing)
-            {
-                var uniqueMixes = new List<GasMixture>();
-                var uniqueMixHash = new Dictionary<GasMixture, int>();
-                var tiles = new Dictionary<Vector2i, int>();
-                foreach (var (indices, tile) in Tiles)
-                {
-                    if (tile.Air == null) continue;
-
-                    if (uniqueMixHash.TryGetValue(tile.Air, out var index))
-                    {
-                        tiles[indices] = index;
-                        continue;
-                    }
-
-                    uniqueMixes.Add(tile.Air);
-                    var newIndex = uniqueMixes.Count - 1;
-                    uniqueMixHash[tile.Air] = newIndex;
-                    tiles[indices] = newIndex;
-                }
-
-                serializer.DataField(ref uniqueMixes, "uniqueMixes", new List<GasMixture>());
-                serializer.DataField(ref tiles, "tiles", new Dictionary<Vector2i, int>());
-            }
         }
 
         public IEnumerator<TileAtmosphere> GetEnumerator()

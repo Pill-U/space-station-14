@@ -1,9 +1,7 @@
 ﻿using Content.Server.Atmos;
 using Content.Server.GameObjects.Components.Atmos;
 using JetBrains.Annotations;
-using Robust.Shared.GameObjects.Systems;
-using Robust.Shared.Interfaces.GameObjects;
-using Robust.Shared.IoC;
+using Robust.Shared.GameObjects;
 
 namespace Content.Server.GameObjects.EntitySystems
 {
@@ -21,9 +19,9 @@ namespace Content.Server.GameObjects.EntitySystems
             if (_lastUpdate < UpdateDelay) return;
 
             // creadth: everything exposable by atmos should be updated as well
-            foreach (var atmosExposedComponent in EntityManager.ComponentManager.EntityQuery<AtmosExposedComponent>())
+            foreach (var atmosExposedComponent in EntityManager.ComponentManager.EntityQuery<AtmosExposedComponent>(true))
             {
-                var tile = atmosExposedComponent.Owner.Transform.Coordinates.GetTileAtmosphere(EntityManager);
+                var tile = atmosExposedComponent.Owner.Transform.Coordinates.GetTileAtmosphere();
                 if (tile == null) continue;
                 atmosExposedComponent.Update(tile, _lastUpdate);
             }

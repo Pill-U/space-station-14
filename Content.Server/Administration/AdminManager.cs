@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,17 +10,17 @@ using Content.Server.Interfaces.Chat;
 using Content.Server.Players;
 using Content.Shared;
 using Content.Shared.Administration;
+using Content.Shared.Administration.AdminMenu;
 using Content.Shared.Network.NetMessages;
 using Robust.Server.Console;
-using Robust.Server.Interfaces.Console;
-using Robust.Server.Interfaces.Player;
 using Robust.Server.Player;
+using Robust.Shared.Configuration;
+using Robust.Shared.Console;
+using Robust.Shared.ContentPack;
 using Robust.Shared.Enums;
-using Robust.Shared.Interfaces.Configuration;
-using Robust.Shared.Interfaces.Network;
-using Robust.Shared.Interfaces.Resources;
 using Robust.Shared.IoC;
 using Robust.Shared.Localization;
+using Robust.Shared.Network;
 using Robust.Shared.Utility;
 using YamlDotNet.RepresentationModel;
 
@@ -36,10 +36,11 @@ namespace Content.Server.Administration
         [Dependency] private readonly IServerNetManager _netMgr = default!;
         [Dependency] private readonly IConGroupController _conGroup = default!;
         [Dependency] private readonly IResourceManager _res = default!;
-        [Dependency] private readonly IConsoleShell _consoleShell = default!;
+        [Dependency] private readonly IServerConsoleHost _consoleHost = default!;
         [Dependency] private readonly IChatManager _chat = default!;
 
         private readonly Dictionary<IPlayerSession, AdminReg> _admins = new();
+        private readonly HashSet<NetUserId> _promotedPlayers = new();
 
         public event Action<AdminPermsChangedEventArgs>? OnPermsChanged;
 
@@ -51,6 +52,11 @@ namespace Content.Server.Administration
         // if a command is in but the flags value is null it's available to everybody.
         private readonly HashSet<string> _anyCommands = new();
         private readonly Dictionary<string, AdminFlags[]> _adminCommands = new();
+
+        public bool IsAdmin(IPlayerSession session, bool includeDeAdmin = false)
+        {
+            return GetAdminData(session, includeDeAdmin) != null;
+        }
 
         public AdminData? GetAdminData(IPlayerSession session, bool includeDeAdmin = false)
         {
@@ -167,9 +173,11 @@ namespace Content.Server.Administration
         public void Initialize()
         {
             _netMgr.RegisterNetMessage<MsgUpdateAdminStatus>(MsgUpdateAdminStatus.NAME);
+            _netMgr.RegisterNetMessage<AdminMenuPlayerListRequest>(AdminMenuPlayerListRequest.NAME, HandlePlayerListRequest);
+            _netMgr.RegisterNetMessage<AdminMenuPlayerListMessage>(AdminMenuPlayerListMessage.NAME);
 
             // Cache permissions for loaded console commands with the requisite attributes.
-            foreach (var (cmdName, cmd) in _consoleShell.AvailableCommands)
+            foreach (var (cmdName, cmd) in _consoleHost.RegisteredCommands)
             {
                 var (isAvail, flagsReq) = GetRequiredFlag(cmd);
 
@@ -225,6 +233,38 @@ namespace Content.Server.Administration
                     }
                 }
             }
+        }
+
+        private void HandlePlayerListRequest(AdminMenuPlayerListRequest message)
+        {
+            var senderSession = _playerManager.GetSessionByChannel(message.MsgChannel);
+
+            if (!_admins.ContainsKey(senderSession))
+            {
+                return;
+            }
+
+            var netMsg = _netMgr.CreateNetMessage<AdminMenuPlayerListMessage>();
+
+            netMsg.PlayersInfo.Clear();
+
+            foreach (var session in _playerManager.GetAllPlayers())
+            {
+                var name = session.Name;
+                var username = session.AttachedEntity?.Name ?? "";
+                var antag = session.ContentData()?.Mind?.AllRoles.Any(r => r.Antagonist) ?? false;
+
+                netMsg.PlayersInfo.Add(new AdminMenuPlayerListMessage.PlayerInfo(name, username, antag));
+            }
+
+            _netMgr.ServerSendMessage(netMsg, senderSession.ConnectedClient);
+        }
+
+        public void PromoteHost(IPlayerSession player)
+        {
+            _promotedPlayers.Add(player.UserId);
+
+            ReloadAdmin(player);
         }
 
         void IPostInjectInit.PostInject()
@@ -309,7 +349,7 @@ namespace Content.Server.Administration
 
         private async Task<(AdminData dat, int? rankId, bool specialLogin)?> LoadAdminData(IPlayerSession session)
         {
-            if (IsLocal(session) && _cfg.GetCVar(CCVars.ConsoleLoginLocal))
+            if (IsLocal(session) && _cfg.GetCVar(CCVars.ConsoleLoginLocal) || _promotedPlayers.Contains(session.UserId))
             {
                 var data = new AdminData
                 {
@@ -411,7 +451,7 @@ namespace Content.Server.Administration
             return false;
         }
 
-        private static (bool isAvail, AdminFlags[] flagsReq) GetRequiredFlag(IClientCommand cmd)
+        private static (bool isAvail, AdminFlags[] flagsReq) GetRequiredFlag(IConsoleCommand cmd)
         {
             var type = cmd.GetType();
             if (Attribute.IsDefined(type, typeof(AnyCommandAttribute)))
@@ -450,6 +490,11 @@ namespace Content.Server.Administration
             return GetAdminData(session)?.CanAdminMenu() ?? false;
         }
 
+        public bool CanAdminReloadPrototypes(IPlayerSession session)
+        {
+            return GetAdminData(session)?.CanAdminReloadPrototypes() ?? false;
+        }
+
         private void SendPermsChangedEvent(IPlayerSession session)
         {
             var flags = GetAdminData(session)?.Flags;
@@ -463,7 +508,7 @@ namespace Content.Server.Administration
             public AdminData Data;
             public int? RankId;
 
-            // Such as console.loginlocal
+            // Such as console.loginlocal or promotehost
             public bool IsSpecialLogin;
 
             public AdminReg(IPlayerSession session, AdminData data)

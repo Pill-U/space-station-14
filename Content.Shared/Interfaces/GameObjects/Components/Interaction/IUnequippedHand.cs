@@ -1,9 +1,9 @@
-﻿using System;
-using Content.Shared.GameObjects.Components.Inventory;
+#nullable enable
+using System;
 using Content.Shared.GameObjects.Components.Items;
 using JetBrains.Annotations;
+using Robust.Shared.Analyzers;
 using Robust.Shared.GameObjects;
-using Robust.Shared.Interfaces.GameObjects;
 
 namespace Content.Shared.Interfaces.GameObjects.Components
 {
@@ -12,8 +12,10 @@ namespace Content.Shared.Interfaces.GameObjects.Components
     ///     even if it is going into another hand slot (which would also fire <see cref="IEquippedHand"/>).
     ///     This includes moving the entity from a hand slot into a non-hand slot (which would also fire <see cref="IEquipped"/>).
     /// </summary>
+    [RequiresExplicitImplementation]
     public interface IUnequippedHand
     {
+        [Obsolete("Use UnequippedHandMessage instead")]
         void UnequippedHand(UnequippedHandEventArgs eventArgs);
     }
 
@@ -31,13 +33,8 @@ namespace Content.Shared.Interfaces.GameObjects.Components
     ///     Raised when removing the entity from an inventory slot.
     /// </summary>
     [PublicAPI]
-    public class UnequippedHandMessage : EntitySystemMessage
+    public class UnequippedHandMessage : HandledEntityEventArgs
     {
-        /// <summary>
-        ///     If this message has already been "handled" by a previous system.
-        /// </summary>
-        public bool Handled { get; set; }
-
         /// <summary>
         ///     Entity that equipped the item.
         /// </summary>

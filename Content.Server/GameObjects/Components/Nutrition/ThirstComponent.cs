@@ -4,15 +4,15 @@ using Content.Server.GameObjects.Components.Mobs;
 using Content.Shared.Alert;
 using Content.Shared.Damage;
 using Content.Shared.GameObjects.Components.Damage;
-using Content.Shared.GameObjects.Components.Mobs;
 using Content.Shared.GameObjects.Components.Mobs.State;
 using Content.Shared.GameObjects.Components.Movement;
 using Content.Shared.GameObjects.Components.Nutrition;
 using Robust.Shared.GameObjects;
-using Robust.Shared.Interfaces.Random;
 using Robust.Shared.IoC;
 using Robust.Shared.Log;
-using Robust.Shared.Serialization;
+using Robust.Shared.Players;
+using Robust.Shared.Random;
+using Robust.Shared.Serialization.Manager.Attributes;
 using Robust.Shared.ViewVariables;
 
 namespace Content.Server.GameObjects.Components.Nutrition
@@ -29,7 +29,8 @@ namespace Content.Server.GameObjects.Components.Nutrition
             get => _baseDecayRate;
             set => _baseDecayRate = value;
         }
-        private float _baseDecayRate;
+        [DataField("base_decay_rate")]
+        private float _baseDecayRate = 0.1f;
 
         [ViewVariables(VVAccess.ReadWrite)]
         public float ActualDecayRate
@@ -71,25 +72,19 @@ namespace Content.Server.GameObjects.Components.Nutrition
             {ThirstThreshold.Parched, AlertType.Parched},
         };
 
-        public override void ExposeData(ObjectSerializer serializer)
-        {
-            base.ExposeData(serializer);
-            serializer.DataField(ref _baseDecayRate, "base_decay_rate", 0.1f);
-        }
-
         public void ThirstThresholdEffect(bool force = false)
         {
             if (_currentThirstThreshold != _lastThirstThreshold || force)
             {
                 // Revert slow speed if required
                 if (_lastThirstThreshold == ThirstThreshold.Parched && _currentThirstThreshold != ThirstThreshold.Dead &&
-                    Owner.TryGetComponent(out MovementSpeedModifierComponent movementSlowdownComponent))
+                    Owner.TryGetComponent(out MovementSpeedModifierComponent? movementSlowdownComponent))
                 {
                     movementSlowdownComponent.RefreshMovementSpeedModifiers();
                 }
 
                 // Update UI
-                Owner.TryGetComponent(out ServerAlertsComponent alertsComponent);
+                Owner.TryGetComponent(out ServerAlertsComponent? alertsComponent);
 
                 if (ThirstThresholdAlertTypes.TryGetValue(_currentThirstThreshold, out var alertId))
                 {
@@ -119,7 +114,7 @@ namespace Content.Server.GameObjects.Components.Nutrition
                         return;
 
                     case ThirstThreshold.Parched:
-                        if (Owner.TryGetComponent(out MovementSpeedModifierComponent movementSlowdownComponent1))
+                        if (Owner.TryGetComponent(out MovementSpeedModifierComponent? movementSlowdownComponent1))
                         {
                             movementSlowdownComponent1.RefreshMovementSpeedModifiers();
                         }
@@ -175,22 +170,15 @@ namespace Content.Server.GameObjects.Components.Nutrition
         public void OnUpdate(float frametime)
         {
             _currentThirst -= frametime * ActualDecayRate;
-            var calculatedThirstThreshold = GetThirstThreshold(_currentThirst);
-            // _trySound(calculatedThreshold);
-            if (calculatedThirstThreshold != _currentThirstThreshold)
-            {
-                _currentThirstThreshold = calculatedThirstThreshold;
-                ThirstThresholdEffect();
-                Dirty();
-            }
+            UpdateCurrentThreshold();
 
             if (_currentThirstThreshold != ThirstThreshold.Dead)
                 return;
 
-            if (!Owner.TryGetComponent(out IDamageableComponent damageable))
+            if (!Owner.TryGetComponent(out IDamageableComponent? damageable))
                 return;
 
-            if (!Owner.TryGetComponent(out IMobStateComponent mobState))
+            if (!Owner.TryGetComponent(out IMobStateComponent? mobState))
                 return;
 
             if (!mobState.IsDead())
@@ -199,14 +187,25 @@ namespace Content.Server.GameObjects.Components.Nutrition
             }
         }
 
-        public void ResetThirst()
+        private void UpdateCurrentThreshold()
         {
-            _currentThirstThreshold = ThirstThreshold.Okay;
-            _currentThirst = ThirstThresholds[_currentThirstThreshold];
-            ThirstThresholdEffect();
+            var calculatedThirstThreshold = GetThirstThreshold(_currentThirst);
+            // _trySound(calculatedThreshold);
+            if (calculatedThirstThreshold != _currentThirstThreshold)
+            {
+                _currentThirstThreshold = calculatedThirstThreshold;
+                ThirstThresholdEffect();
+                Dirty();
+            }
         }
 
-        public override ComponentState GetComponentState()
+        public void ResetThirst()
+        {
+            _currentThirst = ThirstThresholds[ThirstThreshold.Okay];
+            UpdateCurrentThreshold();
+        }
+
+        public override ComponentState GetComponentState(ICommonSession player)
         {
             return new ThirstComponentState(_currentThirstThreshold);
         }

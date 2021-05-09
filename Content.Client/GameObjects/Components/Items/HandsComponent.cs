@@ -1,14 +1,16 @@
-﻿#nullable enable
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Content.Client.Animations;
 using Content.Client.UserInterface;
 using Content.Shared.GameObjects.Components.Items;
+using Content.Shared.GameObjects.Components.Storage;
 using Robust.Client.GameObjects;
-using Robust.Client.Interfaces.GameObjects.Components;
+using Robust.Client.ResourceManagement;
 using Robust.Shared.GameObjects;
-using Robust.Shared.Interfaces.GameObjects;
 using Robust.Shared.IoC;
+using Robust.Shared.Network;
+using Robust.Shared.Players;
 using Robust.Shared.ViewVariables;
 
 namespace Content.Client.GameObjects.Components.Items
@@ -55,7 +57,7 @@ namespace Content.Client.GameObjects.Components.Items
             return Hands.FirstOrDefault(hand => hand.Name == name);
         }
 
-        private bool TryHand(string name, [MaybeNullWhen(false)] out Hand hand)
+        private bool TryHand(string name, [NotNullWhen(true)] out Hand? hand)
         {
             return (hand = GetHand(name)) != null;
         }
@@ -161,20 +163,26 @@ namespace Content.Client.GameObjects.Components.Items
                 return;
             }
 
-            if (!entity.TryGetComponent(out ItemComponent? item)) return;
+            if (!entity.TryGetComponent(out SharedItemComponent? item))
+                return;
 
-            var maybeInHands = item.GetInHandStateInfo(hand.Location);
-
-            if (!maybeInHands.HasValue)
+            if (item.RsiPath == null)
             {
                 _sprite.LayerSetVisible($"hand-{name}", false);
             }
             else
             {
-                var (rsi, state, color) = maybeInHands.Value;
+                var rsi = IoCManager.Resolve<IResourceCache>().GetResource<RSIResource>(SharedSpriteComponent.TextureRoot / item.RsiPath).RSI;
+
+                var handName = hand.Location.ToString().ToLowerInvariant();
+                var prefix = item.EquippedPrefix;
+                var state = prefix != null ? $"{prefix}-inhand-{handName}" : $"inhand-{handName}";
+
+                var color = item.Color;
+
                 _sprite.LayerSetColor($"hand-{name}", color);
                 _sprite.LayerSetVisible($"hand-{name}", true);
-                _sprite.LayerSetState($"hand-{name}", state, rsi);
+                _sprite.LayerSetState($"hand-{name}", state, rsi);  
             }
         }
 
@@ -239,6 +247,23 @@ namespace Content.Client.GameObjects.Components.Items
 
                     hand.Button.Blocked.Visible = true;
 
+                    break;
+                }
+            }
+        }
+
+        public override void HandleNetworkMessage(ComponentMessage message, INetChannel netChannel, ICommonSession? session = null)
+        {
+            base.HandleNetworkMessage(message, netChannel, session);
+
+            switch (message)
+            {
+                case AnimatePickupEntityMessage msg:
+                {
+                    if (Owner.EntityManager.TryGetEntity(msg.EntityId, out var entity))
+                    {
+                        ReusableAnimations.AnimateEntityPickup(entity, msg.EntityPosition, Owner.Transform.WorldPosition);
+                    }
                     break;
                 }
             }

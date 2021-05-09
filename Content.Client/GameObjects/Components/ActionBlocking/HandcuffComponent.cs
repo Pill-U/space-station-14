@@ -6,9 +6,10 @@ using Robust.Shared.GameObjects;
 namespace Content.Client.GameObjects.Components.ActionBlocking
 {
     [RegisterComponent]
+    [ComponentReference(typeof(SharedHandcuffComponent))]
     public class HandcuffComponent : SharedHandcuffComponent
     {
-        public override void HandleComponentState(ComponentState curState, ComponentState nextState)
+        public override void HandleComponentState(ComponentState? curState, ComponentState? nextState)
         {
             if (curState is not HandcuffedComponentState state)
             {

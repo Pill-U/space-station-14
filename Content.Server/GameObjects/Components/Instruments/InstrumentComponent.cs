@@ -4,26 +4,18 @@ using System.Linq;
 using Content.Server.GameObjects.Components.Mobs;
 using Content.Server.GameObjects.EntitySystems;
 using Content.Server.Utility;
-using Content.Shared;
 using Content.Shared.GameObjects.Components.Instruments;
-using Content.Shared.GameObjects.EntitySystems;
+using Content.Shared.GameObjects.EntitySystems.ActionBlocker;
 using Content.Shared.Interfaces;
 using Content.Shared.Interfaces.GameObjects.Components;
 using Robust.Server.GameObjects;
-using Robust.Server.GameObjects.Components.UserInterface;
-using Robust.Server.Interfaces.GameObjects;
-using Robust.Server.Interfaces.Player;
 using Robust.Server.Player;
 using Robust.Shared.Enums;
 using Robust.Shared.GameObjects;
-using Robust.Shared.GameObjects.Systems;
-using Robust.Shared.Interfaces.Configuration;
-using Robust.Shared.Interfaces.Network;
-using Robust.Shared.Interfaces.Timing;
-using Robust.Shared.IoC;
 using Robust.Shared.Localization;
+using Robust.Shared.Network;
 using Robust.Shared.Players;
-using Robust.Shared.Serialization;
+using Robust.Shared.Serialization.Manager.Attributes;
 using Robust.Shared.ViewVariables;
 
 namespace Content.Server.GameObjects.Components.Instruments
@@ -40,9 +32,6 @@ namespace Content.Server.GameObjects.Components.Instruments
             IUse,
             IThrown
     {
-        [Dependency] private readonly IGameTiming _gameTiming = default!;
-
-        private static readonly TimeSpan OneSecAgo = TimeSpan.FromSeconds(-1);
         private InstrumentSystem _instrumentSystem = default!;
 
         /// <summary>
@@ -51,6 +40,7 @@ namespace Content.Server.GameObjects.Components.Instruments
         [ViewVariables]
         private IPlayerSession? _instrumentPlayer;
 
+        [DataField("handheld")]
         private bool _handheld;
 
         [ViewVariables]
@@ -58,9 +48,6 @@ namespace Content.Server.GameObjects.Components.Instruments
 
         [ViewVariables]
         private float _timer = 0f;
-
-        [ViewVariables(VVAccess.ReadOnly)]
-        private TimeSpan _lastMeasured = TimeSpan.MinValue;
 
         [ViewVariables]
         private int _batchesDropped = 0;
@@ -74,12 +61,17 @@ namespace Content.Server.GameObjects.Components.Instruments
         [ViewVariables]
         private int _midiEventCount = 0;
 
-        private byte _instrumentProgram;
+        [DataField("program")]
+        private byte _instrumentProgram = 1;
+        [DataField("bank")]
         private byte _instrumentBank;
+        [DataField("allowPercussion")]
         private bool _allowPercussion;
+        [DataField("allowProgramChange")]
         private bool _allowProgramChange;
+        [DataField("respectMidiLimits")]
+        private bool _respectMidiLimits = true;
 
-        [ViewVariables(VVAccess.ReadWrite)]
         public override byte InstrumentProgram { get => _instrumentProgram;
             set
             {
@@ -88,7 +80,6 @@ namespace Content.Server.GameObjects.Components.Instruments
             }
         }
 
-        [ViewVariables(VVAccess.ReadWrite)]
         public override byte InstrumentBank { get => _instrumentBank;
             set
             {
@@ -97,7 +88,6 @@ namespace Content.Server.GameObjects.Components.Instruments
             }
         }
 
-        [ViewVariables(VVAccess.ReadWrite)]
         public override bool AllowPercussion { get => _allowPercussion;
             set
             {
@@ -106,11 +96,18 @@ namespace Content.Server.GameObjects.Components.Instruments
             }
         }
 
-        [ViewVariables(VVAccess.ReadWrite)]
         public override bool AllowProgramChange { get => _allowProgramChange;
             set
             {
                 _allowProgramChange = value;
+                Dirty();
+            }
+        }
+
+        public override bool RespectMidiLimits { get => _respectMidiLimits;
+            set
+            {
+                _respectMidiLimits = value;
                 Dirty();
             }
         }
@@ -173,19 +170,9 @@ namespace Content.Server.GameObjects.Components.Instruments
             _instrumentSystem = EntitySystem.Get<InstrumentSystem>();
         }
 
-        public override void ExposeData(ObjectSerializer serializer)
+        public override ComponentState GetComponentState(ICommonSession player)
         {
-            base.ExposeData(serializer);
-            serializer.DataField(ref _handheld, "handheld", false);
-            serializer.DataField(ref _instrumentProgram, "program", (byte) 1);
-            serializer.DataField(ref _instrumentBank, "bank", (byte) 0);
-            serializer.DataField(ref _allowPercussion, "allowPercussion", false);
-            serializer.DataField(ref _allowProgramChange, "allowProgramChange", false);
-        }
-
-        public override ComponentState GetComponentState()
-        {
-            return new InstrumentState(Playing, InstrumentProgram, InstrumentBank, AllowPercussion, AllowProgramChange, _lastSequencerTick);
+            return new InstrumentState(Playing, InstrumentProgram, InstrumentBank, AllowPercussion, AllowProgramChange, RespectMidiLimits, _lastSequencerTick);
         }
 
         public override void HandleNetworkMessage(ComponentMessage message, INetChannel channel, ICommonSession? session = null)
@@ -206,25 +193,19 @@ namespace Content.Server.GameObjects.Components.Instruments
                     var minTick = midiEventMsg.MidiEvent.Min(x => x.Tick);
                     if (_lastSequencerTick > minTick)
                     {
-                        var now = _gameTiming.RealTime;
-                        var oneSecAGo = now.Add(OneSecAgo);
-                        if (_lastMeasured < oneSecAGo)
-                        {
-                            _lastMeasured = now;
-                            _laggedBatches = 0;
-                            _batchesDropped = 0;
-                        }
-
                         _laggedBatches++;
 
-                        if (_laggedBatches == (int) (maxMidiLaggedBatches * (1 / 3d) + 1))
+                        if (_respectMidiLimits)
                         {
-                            Owner.PopupMessage(InstrumentPlayer.AttachedEntity,
-                                Loc.GetString("Your fingers are beginning to a cramp a little!"));
-                        } else if (_laggedBatches == (int) (maxMidiLaggedBatches * (2 / 3d) + 1))
-                        {
-                            Owner.PopupMessage(InstrumentPlayer.AttachedEntity,
-                                Loc.GetString("Your fingers are seriously cramping up!"));
+                            if (_laggedBatches == (int) (maxMidiLaggedBatches * (1 / 3d) + 1))
+                            {
+                                InstrumentPlayer.AttachedEntity?.PopupMessage(
+                                    Loc.GetString("Your fingers are beginning to a cramp a little!"));
+                            } else if (_laggedBatches == (int) (maxMidiLaggedBatches * (2 / 3d) + 1))
+                            {
+                                InstrumentPlayer.AttachedEntity?.PopupMessage(
+                                    Loc.GetString("Your fingers are seriously cramping up!"));
+                            }
                         }
 
                         if (_laggedBatches > maxMidiLaggedBatches)
@@ -236,27 +217,18 @@ namespace Content.Server.GameObjects.Components.Instruments
                     if (++_midiEventCount > maxMidiEventsPerSecond
                         || midiEventMsg.MidiEvent.Length > maxMidiEventsPerBatch)
                     {
-                        var now = _gameTiming.RealTime;
-                        var oneSecAGo = now.Add(OneSecAgo);
-                        if (_lastMeasured < oneSecAGo)
-                        {
-                            _lastMeasured = now;
-                            _laggedBatches = 0;
-                            _batchesDropped = 0;
-                        }
-
                         _batchesDropped++;
 
                         send = false;
                     }
 
-                    if (send)
+                    if (send || !_respectMidiLimits)
                     {
                         SendNetworkMessage(midiEventMsg);
                     }
 
                     var maxTick = midiEventMsg.MidiEvent.Max(x => x.Tick);
-                    _lastSequencerTick = Math.Max(maxTick, minTick + 1);
+                    _lastSequencerTick = Math.Max(maxTick, minTick);
                     break;
                 case InstrumentStartMidiMessage startMidi:
                     if (session != _instrumentPlayer)
@@ -280,7 +252,7 @@ namespace Content.Server.GameObjects.Components.Instruments
             _laggedBatches = 0;
         }
 
-        public void Dropped(DroppedEventArgs eventArgs)
+        void IDropped.Dropped(DroppedEventArgs eventArgs)
         {
             Clean();
             SendNetworkMessage(new InstrumentStopMidiMessage());
@@ -288,7 +260,7 @@ namespace Content.Server.GameObjects.Components.Instruments
             UserInterface?.CloseAll();
         }
 
-        public void Thrown(ThrownEventArgs eventArgs)
+        void IThrown.Thrown(ThrownEventArgs eventArgs)
         {
             Clean();
             SendNetworkMessage(new InstrumentStopMidiMessage());
@@ -296,7 +268,7 @@ namespace Content.Server.GameObjects.Components.Instruments
             UserInterface?.CloseAll();
         }
 
-        public void HandSelected(HandSelectedEventArgs eventArgs)
+        void IHandSelected.HandSelected(HandSelectedEventArgs eventArgs)
         {
             if (eventArgs.User == null || !eventArgs.User.TryGetComponent(out BasicActorComponent? actor))
                 return;
@@ -308,14 +280,14 @@ namespace Content.Server.GameObjects.Components.Instruments
             InstrumentPlayer = session;
         }
 
-        public void HandDeselected(HandDeselectedEventArgs eventArgs)
+        void IHandDeselected.HandDeselected(HandDeselectedEventArgs eventArgs)
         {
             Clean();
             SendNetworkMessage(new InstrumentStopMidiMessage());
             UserInterface?.CloseAll();
         }
 
-        public void Activate(ActivateEventArgs eventArgs)
+        void IActivate.Activate(ActivateEventArgs eventArgs)
         {
             if (Handheld || !eventArgs.User.TryGetComponent(out IActorComponent? actor)) return;
 
@@ -325,7 +297,7 @@ namespace Content.Server.GameObjects.Components.Instruments
             OpenUserInterface(actor.playerSession);
         }
 
-        public bool UseEntity(UseEntityEventArgs eventArgs)
+        bool IUse.UseEntity(UseEntityEventArgs eventArgs)
         {
             if (!eventArgs.User.TryGetComponent(out IActorComponent? actor)) return false;
 
@@ -367,7 +339,7 @@ namespace Content.Server.GameObjects.Components.Instruments
 
             if ((_batchesDropped >= maxMidiBatchDropped
                     || _laggedBatches >= maxMidiLaggedBatches)
-                && InstrumentPlayer != null)
+                && InstrumentPlayer != null && _respectMidiLimits)
             {
                 var mob = InstrumentPlayer.AttachedEntity;
 
@@ -376,19 +348,21 @@ namespace Content.Server.GameObjects.Components.Instruments
 
                 UserInterface?.CloseAll();
 
-                if (mob != null && mob.TryGetComponent(out StunnableComponent? stun))
+                if (mob != null)
                 {
-                    stun.Stun(1);
-                    Clean();
-                }
-                else
-                {
-                    EntitySystem.Get<StandingStateSystem>().DropAllItemsInHands(mob, false);
+                    if (Handheld)
+                        EntitySystem.Get<StandingStateSystem>().DropAllItemsInHands(mob, false);
+
+                    if (mob.TryGetComponent(out StunnableComponent? stun))
+                    {
+                        stun.Stun(1);
+                        Clean();
+                    }
+
+                    Owner.PopupMessage(mob, "Your fingers cramp up from playing!");
                 }
 
                 InstrumentPlayer = null;
-
-                Owner.PopupMessage(mob, "Your fingers cramp up from playing!");
             }
 
             _timer += delta;
@@ -396,6 +370,8 @@ namespace Content.Server.GameObjects.Components.Instruments
 
             _timer = 0f;
             _midiEventCount = 0;
+            _laggedBatches = 0;
+            _batchesDropped = 0;
         }
 
     }

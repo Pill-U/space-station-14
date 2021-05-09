@@ -4,14 +4,16 @@ using Content.Client;
 using Content.Client.Interfaces.Parallax;
 using Content.Server;
 using Content.Server.Interfaces.GameTicking;
+using Content.Shared;
 using NUnit.Framework;
-using Robust.Server.Interfaces.Maps;
-using Robust.Server.Interfaces.Timing;
+using Robust.Server.Maps;
+using Robust.Shared;
 using Robust.Shared.ContentPack;
-using Robust.Shared.Interfaces.Map;
-using Robust.Shared.Interfaces.Network;
 using Robust.Shared.IoC;
+using Robust.Shared.Log;
 using Robust.Shared.Map;
+using Robust.Shared.Network;
+using Robust.Shared.Timing;
 using Robust.UnitTesting;
 
 namespace Content.IntegrationTests
@@ -21,8 +23,13 @@ namespace Content.IntegrationTests
     {
         protected sealed override ClientIntegrationInstance StartClient(ClientIntegrationOptions options = null)
         {
-            options ??= new ClientIntegrationOptions();
-            // ReSharper disable once RedundantNameQualifier
+            options ??= new ClientContentIntegrationOption()
+            {
+                FailureLogLevel = LogLevel.Warning
+            };
+
+            options.ContentStart = true;
+
             options.ContentAssemblies = new[]
             {
                 typeof(Shared.EntryPoint).Assembly,
@@ -42,26 +49,37 @@ namespace Content.IntegrationTests
                         }
 
                         IoCManager.Register<IParallaxManager, DummyParallaxManager>(true);
+                        IoCManager.Resolve<ILogManager>().GetSawmill("loc").Level = LogLevel.Error;
                     }
                 });
             };
 
             // Connecting to Discord is a massive waste of time.
             // Basically just makes the CI logs a mess.
-            options.CVarOverrides["discord.enabled"] = "true";
+            options.CVarOverrides["discord.enabled"] = "false";
+
+            // Avoid preloading textures in tests.
+            options.CVarOverrides.TryAdd(CVars.TexturePreloadingEnabled.Name, "false");
 
             return base.StartClient(options);
         }
 
         protected override ServerIntegrationInstance StartServer(ServerIntegrationOptions options = null)
         {
-            options ??= new ServerIntegrationOptions();
+            options ??= new ServerContentIntegrationOption()
+            {
+                FailureLogLevel = LogLevel.Warning
+            };
+
+            options.ContentStart = true;
+
             options.ContentAssemblies = new[]
             {
                 typeof(Shared.EntryPoint).Assembly,
                 typeof(Server.EntryPoint).Assembly,
                 typeof(ContentIntegrationTest).Assembly
             };
+
             options.BeforeStart += () =>
             {
                 IoCManager.Resolve<IModLoader>().SetModuleBaseCallbacks(new ServerModuleTestingCallbacks
@@ -74,7 +92,18 @@ namespace Content.IntegrationTests
                         }
                     }
                 });
+
+                IoCManager.Resolve<ILogManager>().GetSawmill("loc").Level = LogLevel.Error;
             };
+
+            // Avoid funny race conditions with the database.
+            options.CVarOverrides[CCVars.DatabaseSynchronous.Name] = "true";
+
+            // Disable holidays as some of them might mess with the map at round start.
+            options.CVarOverrides[CCVars.HolidaysEnabled.Name] = "false";
+
+            // Avoid loading a large map by default for integration tests.
+            options.CVarOverrides[CCVars.GameMap.Name] = "Maps/Test/empty.yml";
 
             return base.StartServer(options);
         }
@@ -199,11 +228,21 @@ namespace Content.IntegrationTests
 
         protected sealed class ClientContentIntegrationOption : ClientIntegrationOptions
         {
+            public ClientContentIntegrationOption()
+            {
+                FailureLogLevel = LogLevel.Warning;
+            }
+
             public Action ContentBeforeIoC { get; set; }
         }
 
         protected sealed class ServerContentIntegrationOption : ServerIntegrationOptions
         {
+            public ServerContentIntegrationOption()
+            {
+                FailureLogLevel = LogLevel.Warning;
+            }
+
             public Action ContentBeforeIoC { get; set; }
         }
     }

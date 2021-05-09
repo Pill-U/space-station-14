@@ -1,8 +1,9 @@
-﻿using System;
+#nullable enable
+using System;
 using Content.Shared.GameObjects.Components.Inventory;
 using JetBrains.Annotations;
+using Robust.Shared.Analyzers;
 using Robust.Shared.GameObjects;
-using Robust.Shared.Interfaces.GameObjects;
 
 namespace Content.Shared.Interfaces.GameObjects.Components
 {
@@ -14,8 +15,10 @@ namespace Content.Shared.Interfaces.GameObjects.Components
     ///     This DOES NOT fire when removing the entity from a hand slot (<see cref="IUnequippedHand"/>), nor
     ///     does it fire when removing the entity from held/equipped storage.
     /// </summary>
+    [RequiresExplicitImplementation]
     public interface IUnequipped
     {
+        [Obsolete("Use UnequippedMessage instead")]
         void Unequipped(UnequippedEventArgs eventArgs);
     }
 
@@ -33,13 +36,8 @@ namespace Content.Shared.Interfaces.GameObjects.Components
     ///     Raised when removing the entity from an inventory slot.
     /// </summary>
     [PublicAPI]
-    public class UnequippedMessage : EntitySystemMessage
+    public class UnequippedMessage : HandledEntityEventArgs
     {
-        /// <summary>
-        ///     If this message has already been "handled" by a previous system.
-        /// </summary>
-        public bool Handled { get; set; }
-
         /// <summary>
         ///     Entity that equipped the item.
         /// </summary>

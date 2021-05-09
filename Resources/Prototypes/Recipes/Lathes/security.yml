@@ -1,0 +1,32 @@
+- type: latheRecipe
+  id: Handcuffs
+  icon:
+    sprite: Objects/Misc/handcuffs.rsi
+    state: handcuff
+  result: Handcuffs
+  completetime: 500
+  materials:
+    steel: 300
+
+- type: latheRecipe
+  id: Stunbaton
+  icon:
+    sprite: Objects/Weapons/Melee/stunbaton.rsi
+    state: stunbaton_off
+  result: Stunbaton
+  completetime: 500
+  materials:
+    steel: 300
+    plastic: 300
+
+- type: latheRecipe
+  id: Flash
+  icon:
+    sprite: Objects/Weapons/Melee/flash.rsi
+    state: flash
+  result: Flash
+  completetime: 500
+  materials:
+    glass: 100
+    plastic: 200
+    metal: 100

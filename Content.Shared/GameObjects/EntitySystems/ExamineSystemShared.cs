@@ -6,11 +6,9 @@ using Content.Shared.Utility;
 using JetBrains.Annotations;
 using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
-using Robust.Shared.GameObjects.Components;
-using Robust.Shared.GameObjects.Systems;
-using Robust.Shared.Interfaces.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
+using Robust.Shared.Physics;
 using Robust.Shared.Utility;
 using static Content.Shared.GameObjects.EntitySystems.SharedInteractionSystem;
 
@@ -161,14 +159,19 @@ namespace Content.Shared.GameObjects.EntitySystems
         public static bool InRangeUnOccluded(AfterInteractEventArgs args, float range, Ignored? predicate, bool ignoreInsideBlocker = true)
         {
             var originPos = args.User.Transform.MapPosition;
-            var otherPos = args.Target.Transform.MapPosition;
+            var otherPos = args.Target?.Transform.MapPosition ?? args.ClickLocation.ToMap(args.User.EntityManager);
 
             return InRangeUnOccluded(originPos, otherPos, range, predicate, ignoreInsideBlocker);
         }
 
-        public static FormattedMessage GetExamineText(IEntity entity, IEntity examiner)
+        public static FormattedMessage GetExamineText(IEntity entity, IEntity? examiner)
         {
             var message = new FormattedMessage();
+
+            if (examiner == null)
+            {
+                return message;
+            }
 
             var doNewline = false;
 

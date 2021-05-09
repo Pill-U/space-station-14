@@ -1,22 +1,29 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Content.Server.Administration.Commands;
 using Content.Server.GameObjects.Components.Items.Clothing;
 using Content.Server.GameObjects.Components.Items.Storage;
 using Content.Server.GameObjects.EntitySystems.Click;
 using Content.Server.Interfaces.GameObjects;
 using Content.Shared.GameObjects.Components.Inventory;
+using Content.Shared.GameObjects.Components.Movement;
 using Content.Shared.GameObjects.EntitySystems;
+using Content.Shared.GameObjects.EntitySystems.ActionBlocker;
+using Content.Shared.GameObjects.EntitySystems.EffectBlocker;
+using Content.Shared.GameObjects.Verbs;
 using Content.Shared.Interfaces;
-using Robust.Server.GameObjects.Components.Container;
+using Robust.Server.Console;
+using Robust.Server.GameObjects;
+using Robust.Server.Player;
+using Robust.Shared.Console;
 using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
-using Robust.Shared.Interfaces.GameObjects;
-using Robust.Shared.Interfaces.GameObjects.Components;
-using Robust.Shared.Interfaces.Network;
 using Robust.Shared.IoC;
 using Robust.Shared.Localization;
 using Robust.Shared.Map;
+using Robust.Shared.Network;
 using Robust.Shared.Players;
 using Robust.Shared.ViewVariables;
 using static Content.Shared.GameObjects.Components.Inventory.EquipmentSlotDefines;
@@ -26,18 +33,17 @@ namespace Content.Server.GameObjects.Components.GUI
 {
     [RegisterComponent]
     [ComponentReference(typeof(SharedInventoryComponent))]
-    public class InventoryComponent : SharedInventoryComponent, IExAct, IEffectBlocker, IPressureProtection
+    public class InventoryComponent : SharedInventoryComponent, IExAct, IPressureProtection, IEffectBlocker
     {
         [Dependency] private readonly IEntitySystemManager _entitySystemManager = default!;
 
-        [ViewVariables]
-        private readonly Dictionary<Slots, ContainerSlot> _slotContainers = new();
+        [ViewVariables] private readonly Dictionary<Slots, ContainerSlot> _slotContainers = new();
 
         private KeyValuePair<Slots, (EntityUid entity, bool fits)>? _hoverEntity;
 
         public IEnumerable<Slots> Slots => _slotContainers.Keys;
 
-        public event Action OnItemChanged;
+        public event Action? OnItemChanged;
 
         public override void Initialize()
         {
@@ -98,16 +104,49 @@ namespace Content.Server.GameObjects.Components.GUI
             }
         }
 
+        public override float WalkSpeedModifier
+        {
+            get
+            {
+                var mod = 1f;
+                foreach (var slot in _slotContainers.Values)
+                {
+                    if (slot.ContainedEntity != null)
+                    {
+                        foreach (var modifier in slot.ContainedEntity.GetAllComponents<IMoveSpeedModifier>())
+                        {
+                            mod *= modifier.WalkSpeedModifier;
+                        }
+                    }
+                }
+
+                return mod;
+            }
+        }
+
+        public override float SprintSpeedModifier
+        {
+            get
+            {
+                var mod = 1f;
+                foreach (var slot in _slotContainers.Values)
+                {
+                    if (slot.ContainedEntity != null)
+                    {
+                        foreach (var modifier in slot.ContainedEntity.GetAllComponents<IMoveSpeedModifier>())
+                        {
+                            mod *= modifier.SprintSpeedModifier;
+                        }
+                    }
+                }
+
+                return mod;
+            }
+        }
+
         bool IEffectBlocker.CanSlip()
         {
-            if(Owner.TryGetComponent(out InventoryComponent inventoryComponent) &&
-                inventoryComponent.TryGetSlotItem(EquipmentSlotDefines.Slots.SHOES, out ItemComponent shoes)
-            )
-            {
-                return EffectBlockerSystem.CanSlip(shoes.Owner);
-            }
-
-            return true;
+            return !TryGetSlotItem(EquipmentSlotDefines.Slots.SHOES, out ItemComponent? shoes) || EffectBlockerSystem.CanSlip(shoes.Owner);
         }
 
         public override void OnRemove()
@@ -116,7 +155,7 @@ namespace Content.Server.GameObjects.Components.GUI
 
             foreach (var slot in slots)
             {
-                if (TryGetSlotItem(slot, out ItemComponent item))
+                if (TryGetSlotItem(slot, out ItemComponent? item))
                 {
                     item.Owner.Delete();
                 }
@@ -153,18 +192,19 @@ namespace Content.Server.GameObjects.Components.GUI
         /// </summary>
         /// <param name="slot">The slot to get the item for.</param>
         /// <returns>Null if the slot is empty, otherwise the item.</returns>
-        public ItemComponent GetSlotItem(Slots slot)
+        public ItemComponent? GetSlotItem(Slots slot)
         {
             return GetSlotItem<ItemComponent>(slot);
         }
 
-        public IEnumerable<T> LookupItems<T>() where T: Component
+        public IEnumerable<T?> LookupItems<T>() where T : Component
         {
-            return _slotContainers.Values.SelectMany(x => x.ContainedEntities.Select(e => e.GetComponentOrNull<T>()))
+            return _slotContainers.Values
+                .SelectMany(x => x.ContainedEntities.Select(e => e.GetComponentOrNull<T>()))
                 .Where(x => x != null);
         }
 
-        public T GetSlotItem<T>(Slots slot) where T : ItemComponent
+        public T? GetSlotItem<T>(Slots slot) where T : ItemComponent
         {
             if (!_slotContainers.ContainsKey(slot))
             {
@@ -174,14 +214,15 @@ namespace Content.Server.GameObjects.Components.GUI
             var containedEntity = _slotContainers[slot].ContainedEntity;
             if (containedEntity?.Deleted == true)
             {
-                _slotContainers[slot] = null;
+                _slotContainers.Remove(slot);
                 containedEntity = null;
                 Dirty();
             }
+
             return containedEntity?.GetComponent<T>();
         }
 
-        public bool TryGetSlotItem<T>(Slots slot, out T itemComponent) where T : ItemComponent
+        public bool TryGetSlotItem<T>(Slots slot, [NotNullWhen(true)] out T? itemComponent) where T : ItemComponent
         {
             itemComponent = GetSlotItem<T>(slot);
             return itemComponent != null;
@@ -198,7 +239,7 @@ namespace Content.Server.GameObjects.Components.GUI
         /// <param name="mobCheck">Whether to perform an ActionBlocker check to the entity.</param>
         /// <param name="reason">The translated reason why the item cannot be equipped, if this function returns false. Can be null.</param>
         /// <returns>True if the item was successfully inserted, false otherwise.</returns>
-        public bool Equip(Slots slot, ItemComponent item, bool mobCheck, out string reason)
+        public bool Equip(Slots slot, ItemComponent item, bool mobCheck, [NotNullWhen(false)] out string? reason)
         {
             if (item == null)
             {
@@ -214,6 +255,7 @@ namespace Content.Server.GameObjects.Components.GUI
             var inventorySlot = _slotContainers[slot];
             if (!inventorySlot.Insert(item.Owner))
             {
+                reason = Loc.GetString("You can't equip this!");
                 return false;
             }
 
@@ -223,12 +265,16 @@ namespace Content.Server.GameObjects.Components.GUI
 
             Dirty();
 
+            UpdateMovementSpeed();
+
             return true;
         }
 
-        public bool Equip(Slots slot, ItemComponent item, bool mobCheck = true) => Equip(slot, item, mobCheck, out var _);
+        public bool Equip(Slots slot, ItemComponent item, bool mobCheck = true) =>
+            Equip(slot, item, mobCheck, out var _);
 
-        public bool Equip(Slots slot, IEntity entity, bool mobCheck = true) => Equip(slot, entity.GetComponent<ItemComponent>(), mobCheck);
+        public bool Equip(Slots slot, IEntity entity, bool mobCheck = true) =>
+            Equip(slot, entity.GetComponent<ItemComponent>(), mobCheck);
 
         /// <summary>
         ///     Checks whether an item can be put in the specified slot.
@@ -237,13 +283,16 @@ namespace Content.Server.GameObjects.Components.GUI
         /// <param name="item">The item to check for.</param>
         /// <param name="reason">The translated reason why the item cannot be equiped, if this function returns false. Can be null.</param>
         /// <returns>True if the item can be inserted into the specified slot.</returns>
-        public bool CanEquip(Slots slot, ItemComponent item, bool mobCheck, out string reason)
+        public bool CanEquip(Slots slot, ItemComponent item, bool mobCheck, [NotNullWhen(false)] out string? reason)
         {
             var pass = false;
             reason = null;
 
             if (mobCheck && !ActionBlockerSystem.CanEquip(Owner))
+            {
+                reason = Loc.GetString("You can't equip this!");
                 return false;
+            }
 
             if (item is ClothingComponent clothing)
             {
@@ -257,7 +306,7 @@ namespace Content.Server.GameObjects.Components.GUI
                 }
             }
 
-            if (Owner.TryGetComponent(out IInventoryController controller))
+            if (Owner.TryGetComponent(out IInventoryController? controller))
             {
                 pass = controller.CanEquip(slot, item.Owner, pass, out var controllerReason);
                 reason = controllerReason ?? reason;
@@ -268,12 +317,21 @@ namespace Content.Server.GameObjects.Components.GUI
                 reason = Loc.GetString("You can't equip this!");
             }
 
-            return pass && _slotContainers[slot].CanInsert(item.Owner);
+            var canEquip = pass && _slotContainers[slot].CanInsert(item.Owner);
+
+            if (!canEquip)
+            {
+                reason = Loc.GetString("You can't equip this!");
+            }
+
+            return canEquip;
         }
 
-        public bool CanEquip(Slots slot, ItemComponent item, bool mobCheck = true) => CanEquip(slot, item, mobCheck, out var _);
+        public bool CanEquip(Slots slot, ItemComponent item, bool mobCheck = true) =>
+            CanEquip(slot, item, mobCheck, out var _);
 
-        public bool CanEquip(Slots slot, IEntity entity, bool mobCheck = true) => CanEquip(slot, entity.GetComponent<ItemComponent>(), mobCheck);
+        public bool CanEquip(Slots slot, IEntity entity, bool mobCheck = true) =>
+            CanEquip(slot, entity.GetComponent<ItemComponent>(), mobCheck);
 
         /// <summary>
         ///     Drops the item in a slot.
@@ -290,7 +348,12 @@ namespace Content.Server.GameObjects.Components.GUI
 
             var inventorySlot = _slotContainers[slot];
             var entity = inventorySlot.ContainedEntity;
-            var item = entity.GetComponent<ItemComponent>();
+
+            if (entity == null)
+            {
+                return false;
+            }
+
             if (!inventorySlot.Remove(entity))
             {
                 return false;
@@ -305,7 +368,17 @@ namespace Content.Server.GameObjects.Components.GUI
 
             Dirty();
 
+            UpdateMovementSpeed();
+
             return true;
+        }
+
+        private void UpdateMovementSpeed()
+        {
+            if (Owner.TryGetComponent(out MovementSpeedModifierComponent? mod))
+            {
+                mod.RefreshMovementSpeedModifiers();
+            }
         }
 
         public void ForceUnequip(Slots slot)
@@ -364,7 +437,9 @@ namespace Content.Server.GameObjects.Components.GUI
 
             Dirty();
 
-            _slotContainers[slot] = ContainerManagerComponent.Create<ContainerSlot>(GetSlotString(slot), Owner);
+            var container = ContainerHelpers.CreateContainer<ContainerSlot>(Owner, GetSlotString(slot));
+            container.OccludesLight = false;
+            _slotContainers[slot] = container;
 
             OnItemChanged?.Invoke();
 
@@ -419,7 +494,7 @@ namespace Content.Server.GameObjects.Components.GUI
             if (container is not ContainerSlot slot || !_slotContainers.ContainsValue(slot))
                 return;
 
-            if (entity.TryGetComponent(out ItemComponent itemComp))
+            if (entity.TryGetComponent(out ItemComponent? itemComp))
             {
                 itemComp.RemovedFromSlot();
             }
@@ -440,18 +515,18 @@ namespace Content.Server.GameObjects.Components.GUI
                 case ClientInventoryUpdate.Equip:
                 {
                     var hands = Owner.GetComponent<HandsComponent>();
-                    var activeHand = hands.GetActiveHand;
-                    if (activeHand != null && activeHand.Owner.TryGetComponent(out ItemComponent clothing))
+                    var activeHand = hands.ActiveHand;
+                    var activeItem = hands.GetActiveHand;
+                    if (activeHand != null && activeItem != null && activeItem.Owner.TryGetComponent(out ItemComponent? clothing))
                     {
-                        hands.Drop(hands.ActiveHand, doDropInteraction:false);
+                        hands.Drop(activeHand, doDropInteraction: false);
                         if (!Equip(msg.Inventoryslot, clothing, true, out var reason))
                         {
                             hands.PutInHand(clothing);
-
-                            if (reason != null)
-                                Owner.PopupMessageCursor(reason);
+                            Owner.PopupMessageCursor(reason);
                         }
                     }
+
                     break;
                 }
                 case ClientInventoryUpdate.Use:
@@ -464,14 +539,15 @@ namespace Content.Server.GameObjects.Components.GUI
                     {
                         if (activeHand != null)
                         {
-                                await interactionSystem.Interaction(Owner, activeHand.Owner, itemContainedInSlot.Owner,
-                                    new EntityCoordinates());
+                            await interactionSystem.Interaction(Owner, activeHand.Owner, itemContainedInSlot.Owner,
+                                new EntityCoordinates());
                         }
                         else if (Unequip(msg.Inventoryslot))
                         {
                             hands.PutInHand(itemContainedInSlot);
                         }
                     }
+
                     break;
                 }
                 case ClientInventoryUpdate.Hover:
@@ -481,7 +557,9 @@ namespace Content.Server.GameObjects.Components.GUI
                     if (activeHand != null && GetSlotItem(msg.Inventoryslot) == null)
                     {
                         var canEquip = CanEquip(msg.Inventoryslot, activeHand, true, out var reason);
-                        _hoverEntity = new KeyValuePair<Slots, (EntityUid entity, bool fits)>(msg.Inventoryslot, (activeHand.Owner.Uid, canEquip));
+                        _hoverEntity =
+                            new KeyValuePair<Slots, (EntityUid entity, bool fits)>(msg.Inventoryslot,
+                                (activeHand.Owner.Uid, canEquip));
 
                         Dirty();
                     }
@@ -492,7 +570,7 @@ namespace Content.Server.GameObjects.Components.GUI
         }
 
         /// <inheritdoc />
-        public override void HandleMessage(ComponentMessage message, IComponent component)
+        public override void HandleMessage(ComponentMessage message, IComponent? component)
         {
             base.HandleMessage(message, component);
 
@@ -509,7 +587,8 @@ namespace Content.Server.GameObjects.Components.GUI
         }
 
         /// <inheritdoc />
-        public override void HandleNetworkMessage(ComponentMessage message, INetChannel netChannel, ICommonSession session = null)
+        public override void HandleNetworkMessage(ComponentMessage message, INetChannel netChannel,
+            ICommonSession? session = null)
         {
             base.HandleNetworkMessage(message, netChannel, session);
 
@@ -531,13 +610,13 @@ namespace Content.Server.GameObjects.Components.GUI
                     if (!HasSlot(msg.Slot)) // client input sanitization
                         return;
                     var item = GetSlotItem(msg.Slot);
-                    if (item != null && item.Owner.TryGetComponent(out ServerStorageComponent storage))
+                    if (item != null && item.Owner.TryGetComponent(out ServerStorageComponent? storage))
                         storage.OpenStorageUI(Owner);
                     break;
             }
         }
 
-        public override ComponentState GetComponentState()
+        public override ComponentState GetComponentState(ICommonSession player)
         {
             var list = new List<KeyValuePair<Slots, EntityUid>>();
             foreach (var (slot, container) in _slotContainers)
@@ -587,6 +666,48 @@ namespace Content.Server.GameObjects.Components.GUI
             }
 
             return false;
+        }
+
+        [Verb]
+        private sealed class SetOutfitVerb : Verb<InventoryComponent>
+        {
+            public override bool RequireInteractionRange => false;
+            public override bool BlockedByContainers => false;
+
+            protected override void GetData(IEntity user, InventoryComponent component, VerbData data)
+            {
+                data.Visibility = VerbVisibility.Invisible;
+                if (!CanCommand(user))
+                    return;
+
+                data.Visibility = VerbVisibility.Visible;
+                data.Text = Loc.GetString("Set Outfit");
+                data.CategoryData = VerbCategories.Debug;
+                data.IconTexture = "/Textures/Interface/VerbIcons/outfit.svg.192dpi.png";
+            }
+
+            protected override void Activate(IEntity user, InventoryComponent component)
+            {
+                if (!CanCommand(user))
+                    return;
+
+                var target = component.Owner;
+
+                var entityId = target.Uid.ToString();
+
+                var command = new SetOutfitCommand();
+                var host = IoCManager.Resolve<IServerConsoleHost>();
+                var args = new string[] {entityId};
+                var session = user.PlayerSession();
+                command.Execute(new ConsoleShell(host, session), $"{command.Command} {entityId}", args);
+            }
+
+            private static bool CanCommand(IEntity user)
+            {
+                var groupController = IoCManager.Resolve<IConGroupController>();
+                return user.TryGetComponent<IActorComponent>(out var player) &&
+                       groupController.CanCommand(player.playerSession, "setoutfit");
+            }
         }
     }
 }

@@ -1,4 +1,3 @@
-﻿#nullable enable
 using System.Collections.Generic;
 using Content.Client.GameObjects.Components.Mobs;
 using Content.Client.GameObjects.Components.Mobs.Actions;
@@ -7,18 +6,15 @@ using Content.Client.UserInterface.Stylesheets;
 using Content.Client.Utility;
 using Content.Shared.Actions;
 using Robust.Client.Graphics;
-using Robust.Client.Interfaces.ResourceManagement;
+using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.Utility;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Input;
 using Robust.Shared.Input.Binding;
-using Robust.Shared.Interfaces.GameObjects;
-using Robust.Shared.Interfaces.Timing;
 using Robust.Shared.IoC;
 using Robust.Shared.Log;
-using Robust.Shared.Maths;
 using Robust.Shared.Timing;
 
 namespace Content.Client.UserInterface
@@ -32,6 +28,7 @@ namespace Content.Client.UserInterface
         private readonly ActionManager _actionManager;
         private readonly IEntityManager _entityManager;
         private readonly IGameTiming _gameTiming;
+        private readonly IGameHud _gameHud;
 
         private readonly ActionSlot[] _slots;
 
@@ -39,11 +36,10 @@ namespace Content.Client.UserInterface
 
         private readonly TextureButton _lockButton;
         private readonly TextureButton _settingsButton;
-        private readonly TextureButton _previousHotbarButton;
         private readonly Label _loadoutNumber;
-        private readonly TextureButton _nextHotbarButton;
         private readonly Texture _lockTexture;
         private readonly Texture _unlockTexture;
+        private readonly HBoxContainer _loadoutContainer;
 
         private readonly TextureRect _dragShadow;
 
@@ -77,20 +73,23 @@ namespace Content.Client.UserInterface
 
         public ActionsUI(ClientActionsComponent actionsComponent)
         {
+            SetValue(LayoutContainer.DebugProperty, true);
             _actionsComponent = actionsComponent;
             _actionManager = IoCManager.Resolve<ActionManager>();
             _entityManager = IoCManager.Resolve<IEntityManager>();
             _gameTiming = IoCManager.Resolve<IGameTiming>();
+            _gameHud = IoCManager.Resolve<IGameHud>();
             _menu = new ActionMenu(_actionsComponent, this);
+
             LayoutContainer.SetGrowHorizontal(this, LayoutContainer.GrowDirection.End);
-            LayoutContainer.SetGrowVertical(this, LayoutContainer.GrowDirection.End);
+            LayoutContainer.SetGrowVertical(this, LayoutContainer.GrowDirection.Constrain);
             LayoutContainer.SetAnchorTop(this, 0f);
             LayoutContainer.SetAnchorBottom(this, 0.8f);
-            LayoutContainer.SetMarginLeft(this, 10);
-            LayoutContainer.SetMarginTop(this, 100);
+            LayoutContainer.SetMarginLeft(this, 13);
+            LayoutContainer.SetMarginTop(this, 110);
 
-            SizeFlagsHorizontal = SizeFlags.None;
-            SizeFlagsVertical = SizeFlags.FillExpand;
+            HorizontalAlignment = HAlignment.Left;
+            VerticalExpand = true;
 
             var resourceCache = IoCManager.Resolve<IResourceCache>();
 
@@ -101,114 +100,123 @@ namespace Content.Client.UserInterface
             var panelContainer = new PanelContainer()
             {
                 StyleClasses = {StyleNano.StyleClassHotbarPanel},
-                SizeFlagsHorizontal = SizeFlags.None,
-                SizeFlagsVertical = SizeFlags.None
+                HorizontalAlignment = HAlignment.Left,
+                VerticalAlignment = VAlignment.Top
             };
             AddChild(panelContainer);
 
             var hotbarContainer = new VBoxContainer
             {
                 SeparationOverride = 3,
-                SizeFlagsHorizontal = SizeFlags.None
+                HorizontalAlignment = HAlignment.Left
             };
             panelContainer.AddChild(hotbarContainer);
 
             var settingsContainer = new HBoxContainer
             {
-                SizeFlagsHorizontal = SizeFlags.FillExpand
+                HorizontalExpand = true
             };
             hotbarContainer.AddChild(settingsContainer);
 
-            settingsContainer.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.FillExpand, SizeFlagsStretchRatio = 1 });
-            _lockTexture = resourceCache.GetTexture("/Textures/Interface/Nano/lock.svg.png");
-            _unlockTexture = resourceCache.GetTexture("/Textures/Interface/Nano/lock_open.svg.png");
+            settingsContainer.AddChild(new Control { HorizontalExpand = true, SizeFlagsStretchRatio = 1 });
+            _lockTexture = resourceCache.GetTexture("/Textures/Interface/Nano/lock.svg.192dpi.png");
+            _unlockTexture = resourceCache.GetTexture("/Textures/Interface/Nano/lock_open.svg.192dpi.png");
             _lockButton = new TextureButton
             {
                 TextureNormal = _unlockTexture,
-                SizeFlagsHorizontal = SizeFlags.ShrinkCenter,
-                SizeFlagsVertical = SizeFlags.ShrinkCenter,
-                SizeFlagsStretchRatio = 1
+                HorizontalAlignment = HAlignment.Center,
+                VerticalAlignment = VAlignment.Center,
+                SizeFlagsStretchRatio = 1,
+                Scale = (0.5f, 0.5f)
             };
             settingsContainer.AddChild(_lockButton);
-            settingsContainer.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.FillExpand, SizeFlagsStretchRatio = 2 });
+            settingsContainer.AddChild(new Control { HorizontalExpand = true, SizeFlagsStretchRatio = 2 });
             _settingsButton = new TextureButton
             {
-                TextureNormal = resourceCache.GetTexture("/Textures/Interface/Nano/gear.svg.png"),
-                SizeFlagsHorizontal = SizeFlags.ShrinkCenter,
-                SizeFlagsVertical = SizeFlags.ShrinkCenter,
-                SizeFlagsStretchRatio = 1
+                TextureNormal = resourceCache.GetTexture("/Textures/Interface/Nano/gear.svg.192dpi.png"),
+                HorizontalAlignment = HAlignment.Center,
+                VerticalAlignment = VAlignment.Center,
+                SizeFlagsStretchRatio = 1,
+                Scale = (0.5f, 0.5f)
             };
             settingsContainer.AddChild(_settingsButton);
-            settingsContainer.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.FillExpand, SizeFlagsStretchRatio = 1 });
+            settingsContainer.AddChild(new Control { HorizontalExpand = true, SizeFlagsStretchRatio = 1 });
 
             // this allows a 2 column layout if window gets too small
             _slotContainer = new GridContainer
             {
-                MaxHeight = CalcMaxHeight()
+                MaxGridHeight = CalcMaxHeight()
             };
             hotbarContainer.AddChild(_slotContainer);
 
-            var loadoutContainer = new HBoxContainer
+            _loadoutContainer = new HBoxContainer
             {
-                SizeFlagsHorizontal = SizeFlags.FillExpand
+                HorizontalExpand = true,
+                MouseFilter = MouseFilterMode.Stop
             };
-            hotbarContainer.AddChild(loadoutContainer);
+            hotbarContainer.AddChild(_loadoutContainer);
 
-            loadoutContainer.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.FillExpand, SizeFlagsStretchRatio = 1 });
-            _previousHotbarButton = new TextureButton
+            _loadoutContainer.AddChild(new Control { HorizontalExpand = true, SizeFlagsStretchRatio = 1 });
+            var previousHotbarIcon = new TextureRect()
             {
-                TextureNormal = resourceCache.GetTexture("/Textures/Interface/Nano/left_arrow.svg.png"),
-                SizeFlagsHorizontal = SizeFlags.ShrinkCenter,
-                SizeFlagsVertical = SizeFlags.ShrinkCenter,
-                SizeFlagsStretchRatio = 1
+                Texture = resourceCache.GetTexture("/Textures/Interface/Nano/left_arrow.svg.192dpi.png"),
+                HorizontalAlignment = HAlignment.Center,
+                VerticalAlignment = VAlignment.Center,
+                SizeFlagsStretchRatio = 1,
+                TextureScale = (0.5f, 0.5f)
             };
-            loadoutContainer.AddChild(_previousHotbarButton);
-            loadoutContainer.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.FillExpand, SizeFlagsStretchRatio = 2 });
+            _loadoutContainer.AddChild(previousHotbarIcon);
+            _loadoutContainer.AddChild(new Control { HorizontalExpand = true, SizeFlagsStretchRatio = 2 });
             _loadoutNumber = new Label
             {
                 Text = "1",
                 SizeFlagsStretchRatio = 1
             };
-            loadoutContainer.AddChild(_loadoutNumber);
-            loadoutContainer.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.FillExpand, SizeFlagsStretchRatio = 2 });
-            _nextHotbarButton = new TextureButton
+            _loadoutContainer.AddChild(_loadoutNumber);
+            _loadoutContainer.AddChild(new Control { HorizontalExpand = true, SizeFlagsStretchRatio = 2 });
+            var nextHotbarIcon = new TextureRect
             {
-                TextureNormal = resourceCache.GetTexture("/Textures/Interface/Nano/right_arrow.svg.png"),
-                SizeFlagsHorizontal = SizeFlags.ShrinkCenter,
-                SizeFlagsVertical = SizeFlags.ShrinkCenter,
-                SizeFlagsStretchRatio = 1
+                Texture = resourceCache.GetTexture("/Textures/Interface/Nano/right_arrow.svg.192dpi.png"),
+                HorizontalAlignment = HAlignment.Center,
+                VerticalAlignment = VAlignment.Center,
+                SizeFlagsStretchRatio = 1,
+                TextureScale = (0.5f, 0.5f)
             };
-            loadoutContainer.AddChild(_nextHotbarButton);
-            loadoutContainer.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.FillExpand, SizeFlagsStretchRatio = 1 });
+            _loadoutContainer.AddChild(nextHotbarIcon);
+            _loadoutContainer.AddChild(new Control { HorizontalExpand = true, SizeFlagsStretchRatio = 1 });
 
             _slots = new ActionSlot[ClientActionsComponent.Slots];
 
             _dragShadow = new TextureRect
             {
-                CustomMinimumSize = (64, 64),
+                MinSize = (64, 64),
                 Stretch = TextureRect.StretchMode.Scale,
-                Visible = false
+                Visible = false,
+                SetSize = (64, 64)
             };
             UserInterfaceManager.PopupRoot.AddChild(_dragShadow);
-            LayoutContainer.SetSize(_dragShadow, (64, 64));
 
             for (byte i = 0; i < ClientActionsComponent.Slots; i++)
             {
-                var slot = new ActionSlot(this, actionsComponent, i);
+                var slot = new ActionSlot(this, _menu, actionsComponent, i);
                 _slotContainer.AddChild(slot);
                 _slots[i] = slot;
             }
 
             DragDropHelper = new DragDropHelper<ActionSlot>(OnBeginActionDrag, OnContinueActionDrag, OnEndActionDrag);
+
+            MinSize = (10, 400);
         }
 
         protected override void EnteredTree()
         {
             base.EnteredTree();
             _lockButton.OnPressed += OnLockPressed;
-            _nextHotbarButton.OnPressed += NextHotbar;
-            _previousHotbarButton.OnPressed += PreviousHotbar;
             _settingsButton.OnPressed += OnToggleActionsMenu;
+            _loadoutContainer.OnKeyBindDown += OnHotbarPaginate;
+            _gameHud.ActionsButtonToggled += OnToggleActionsMenuTopButton;
+            _gameHud.ActionsButtonDown = false;
+            _gameHud.ActionsButtonVisible = true;
         }
 
         protected override void ExitedTree()
@@ -217,21 +225,17 @@ namespace Content.Client.UserInterface
             StopTargeting();
             _menu.Close();
             _lockButton.OnPressed -= OnLockPressed;
-            _nextHotbarButton.OnPressed -= NextHotbar;
-            _previousHotbarButton.OnPressed -= PreviousHotbar;
             _settingsButton.OnPressed -= OnToggleActionsMenu;
-        }
-
-        protected override Vector2 CalculateMinimumSize()
-        {
-            // allows us to shrink down to a 2-column layout minimum
-            return (10, 400);
+            _loadoutContainer.OnKeyBindDown -= OnHotbarPaginate;
+            _gameHud.ActionsButtonToggled -= OnToggleActionsMenuTopButton;
+            _gameHud.ActionsButtonDown = false;
+            _gameHud.ActionsButtonVisible = false;
         }
 
         protected override void Resized()
         {
             base.Resized();
-            _slotContainer.MaxHeight = CalcMaxHeight();
+            _slotContainer.MaxGridHeight = CalcMaxHeight();
         }
 
         private float CalcMaxHeight()
@@ -256,7 +260,7 @@ namespace Content.Client.UserInterface
 
         protected override void UIScaleChanged()
         {
-            _slotContainer.MaxHeight = CalcMaxHeight();
+            _slotContainer.MaxGridHeight = CalcMaxHeight();
             base.UIScaleChanged();
         }
 
@@ -330,9 +334,9 @@ namespace Content.Client.UserInterface
                 actionSlot.EnableAction();
                 actionSlot.Cooldown = actionState.Cooldown;
 
-                // if we are targeting with an action now on cooldown, stop targeting
+                // if we are targeting for this action and it's now on cooldown, stop targeting if we're supposed to
                 if (SelectingTargetFor?.Action != null && SelectingTargetFor.Action == action &&
-                    actionState.IsOnCooldown(_gameTiming))
+                    actionState.IsOnCooldown(_gameTiming) && action.DeselectOnCooldown)
                 {
                     StopTargeting();
                 }
@@ -403,10 +407,10 @@ namespace Content.Client.UserInterface
                 // action is currently granted
                 actionSlot.EnableAction();
 
-                // if we are targeting with an action now on cooldown, stop targeting
+                // if we are targeting with an action now on cooldown, stop targeting if we should
                 if (SelectingTargetFor?.Action != null && SelectingTargetFor.Action == action &&
                     SelectingTargetFor.Item == itemEntity &&
-                    actionState.IsOnCooldown(_gameTiming))
+                    actionState.IsOnCooldown(_gameTiming) && action.DeselectOnCooldown)
                 {
                     StopTargeting();
                 }
@@ -420,17 +424,24 @@ namespace Content.Client.UserInterface
             }
         }
 
-        private void NextHotbar(BaseButton.ButtonEventArgs args)
-        {
-            ChangeHotbar((byte) ((SelectedHotbar + 1) % ClientActionsComponent.Hotbars));
-        }
 
-        private void PreviousHotbar(BaseButton.ButtonEventArgs args)
+        private void OnHotbarPaginate(GUIBoundKeyEventArgs args)
         {
-            var newBar = SelectedHotbar == 0 ? ClientActionsComponent.Hotbars - 1 : SelectedHotbar - 1;
-            ChangeHotbar((byte) newBar);
-        }
+            // rather than clicking the arrows themselves, the user can click the hbox so it's more
+            // "forgiving" for misclicks, and we simply check which side they are closer to
+            if (args.Function != EngineKeyFunctions.UIClick) return;
 
+            var rightness = args.RelativePosition.X / _loadoutContainer.Width;
+            if (rightness > 0.5)
+            {
+                ChangeHotbar((byte) ((SelectedHotbar + 1) % ClientActionsComponent.Hotbars));
+            }
+            else
+            {
+                var newBar = SelectedHotbar == 0 ? ClientActionsComponent.Hotbars - 1 : SelectedHotbar - 1;
+                ChangeHotbar((byte) newBar);
+            }
+        }
 
         private void ChangeHotbar(byte hotbar)
         {
@@ -491,6 +502,13 @@ namespace Content.Client.UserInterface
             ToggleActionsMenu();
         }
 
+
+        private void OnToggleActionsMenuTopButton(bool open)
+        {
+            if (open == _menu.IsOpen) return;
+            ToggleActionsMenu();
+        }
+
         public void ToggleActionsMenu()
         {
             if (_menu.IsOpen)
@@ -512,10 +530,10 @@ namespace Content.Client.UserInterface
         private bool OnBeginActionDrag()
         {
             // only initiate the drag if the slot has an action in it
-            if (Locked || DragDropHelper.Dragged.Action == null) return false;
+            if (Locked || DragDropHelper.Dragged?.Action == null) return false;
 
             _dragShadow.Texture = DragDropHelper.Dragged.Action.Icon.Frame0();
-            LayoutContainer.SetPosition(_dragShadow, UserInterfaceManager.MousePositionScaled - (32, 32));
+            LayoutContainer.SetPosition(_dragShadow, UserInterfaceManager.MousePositionScaled.Position - (32, 32));
             DragDropHelper.Dragged.CancelPress();
             return true;
         }
@@ -523,10 +541,10 @@ namespace Content.Client.UserInterface
         private bool OnContinueActionDrag(float frameTime)
         {
             // stop if there's no action in the slot
-            if (Locked || DragDropHelper.Dragged.Action == null) return false;
+            if (Locked || DragDropHelper.Dragged?.Action == null) return false;
 
             // keep dragged entity centered under mouse
-            LayoutContainer.SetPosition(_dragShadow, UserInterfaceManager.MousePositionScaled - (32, 32));
+            LayoutContainer.SetPosition(_dragShadow, UserInterfaceManager.MousePositionScaled.Position - (32, 32));
             // we don't set this visible until frameupdate, otherwise it flickers
             _dragShadow.Visible = true;
             return true;
@@ -547,9 +565,18 @@ namespace Content.Client.UserInterface
             actionSlot.Depress(args.State == BoundKeyState.Down);
         }
 
+        /// <summary>
+        /// Handle hotbar change.
+        /// </summary>
+        /// <param name="hotbar">hotbar index to switch to</param>
+        public void HandleChangeHotbarKeybind(byte hotbar, PointerInputCmdHandler.PointerInputCmdArgs args)
+        {
+            ChangeHotbar(hotbar);
+        }
+
         protected override void FrameUpdate(FrameEventArgs args)
         {
-            base.Update(args);
+            base.FrameUpdate(args);
             DragDropHelper.Update(args.DeltaSeconds);
         }
     }

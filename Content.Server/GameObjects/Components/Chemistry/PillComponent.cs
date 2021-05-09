@@ -1,51 +1,43 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using Content.Server.GameObjects.Components.Body.Behavior;
+using Content.Server.GameObjects.Components.Culinary;
 using Content.Server.GameObjects.Components.Nutrition;
-using Content.Server.GameObjects.Components.Utensil;
 using Content.Shared.Chemistry;
 using Content.Shared.GameObjects.Components.Body;
 using Content.Shared.Interfaces;
 using Content.Shared.Interfaces.GameObjects.Components;
 using Content.Shared.Utility;
-using Robust.Server.GameObjects.EntitySystems;
+using Robust.Server.GameObjects;
 using Robust.Shared.Audio;
 using Robust.Shared.GameObjects;
-using Robust.Shared.Interfaces.GameObjects;
 using Robust.Shared.IoC;
 using Robust.Shared.Localization;
-using Robust.Shared.Prototypes;
-using Robust.Shared.Serialization;
+using Robust.Shared.Player;
+using Robust.Shared.Serialization.Manager.Attributes;
 using Robust.Shared.ViewVariables;
 
 namespace Content.Server.GameObjects.Components.Chemistry
 {
     [RegisterComponent]
-    [ComponentReference(typeof(IAfterInteract))]
     public class PillComponent : FoodComponent, IUse, IAfterInteract
     {
-        [Dependency] private readonly IEntitySystemManager _entitySystem = default!;
-        [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
-
         public override string Name => "Pill";
 
         [ViewVariables]
-        private string _useSound;
-        [ViewVariables]
-        private string _trashPrototype;
-        [ViewVariables]
-        private SolutionContainerComponent _contents;
-        [ViewVariables]
-        private ReagentUnit _transferAmount;
+        [DataField("useSound")]
+        protected override string? UseSound { get; set; } = default;
 
+        [ViewVariables]
+        [DataField("trash")]
+        protected override string? TrashPrototype { get; set; } = default;
 
-        public override void ExposeData(ObjectSerializer serializer)
-        {
-            base.ExposeData(serializer);
-            serializer.DataField(ref _useSound, "useSound", null);
-            serializer.DataField(ref _transferAmount, "transferAmount", ReagentUnit.New(1000));
-            serializer.DataField(ref _trashPrototype, "trash", null);
-        }
+        [ViewVariables]
+        [DataField("transferAmount")]
+        protected override ReagentUnit TransferAmount { get; set; } = ReagentUnit.New(1000);
+
+        [ViewVariables]
+        private SolutionContainerComponent _contents = default!;
 
         public override void Initialize()
         {
@@ -60,17 +52,18 @@ namespace Content.Server.GameObjects.Components.Chemistry
         }
 
         // Feeding someone else
-        public async Task AfterInteract(AfterInteractEventArgs eventArgs)
+        async Task<bool> IAfterInteract.AfterInteract(AfterInteractEventArgs eventArgs)
         {
             if (eventArgs.Target == null)
             {
-                return;
+                return false;
             }
 
             TryUseFood(eventArgs.User, eventArgs.Target);
+            return true;
         }
 
-        public override bool TryUseFood(IEntity user, IEntity target, UtensilComponent utensilUsed = null)
+        public override bool TryUseFood(IEntity? user, IEntity? target, UtensilComponent? utensilUsed = null)
         {
             if (user == null)
             {
@@ -79,7 +72,7 @@ namespace Content.Server.GameObjects.Components.Chemistry
 
             var trueTarget = target ?? user;
 
-            if (!trueTarget.TryGetComponent(out IBody body) ||
+            if (!trueTarget.TryGetComponent(out IBody? body) ||
                 !body.TryGetMechanismBehaviors<StomachBehavior>(out var stomachs))
             {
                 return false;
@@ -90,7 +83,7 @@ namespace Content.Server.GameObjects.Components.Chemistry
                 return false;
             }
 
-            var transferAmount = ReagentUnit.Min(_transferAmount, _contents.CurrentVolume);
+            var transferAmount = ReagentUnit.Min(TransferAmount, _contents.CurrentVolume);
             var split = _contents.SplitSolution(transferAmount);
 
             var firstStomach = stomachs.FirstOrDefault(stomach => stomach.CanTransferSolution(split));
@@ -104,18 +97,13 @@ namespace Content.Server.GameObjects.Components.Chemistry
 
             // TODO: Account for partial transfer.
 
-            foreach (var (reagentId, quantity) in split.Contents)
-            {
-                if (!_prototypeManager.TryIndex(reagentId, out ReagentPrototype reagent)) continue;
-                split.RemoveReagent(reagentId, reagent.ReactionEntity(trueTarget, ReactionMethod.Ingestion, quantity));
-            }
+            split.DoEntityReaction(trueTarget, ReactionMethod.Ingestion);
 
             firstStomach.TryTransferSolution(split);
 
-            if (_useSound != null)
+            if (UseSound != null)
             {
-                _entitySystem.GetEntitySystem<AudioSystem>()
-                    .PlayFromEntity(_useSound, trueTarget, AudioParams.Default.WithVolume(-1f));
+                SoundSystem.Play(Filter.Pvs(trueTarget), UseSound, trueTarget, AudioParams.Default.WithVolume(-1f));
             }
 
             trueTarget.PopupMessage(user, Loc.GetString("You swallow the pill."));

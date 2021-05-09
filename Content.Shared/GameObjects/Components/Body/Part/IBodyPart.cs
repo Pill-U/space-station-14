@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Content.Shared.GameObjects.Components.Body.Mechanism;
 using Content.Shared.GameObjects.Components.Body.Surgery;
-using Robust.Shared.Interfaces.GameObjects;
+using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 
 namespace Content.Shared.GameObjects.Components.Body.Part
@@ -14,6 +14,11 @@ namespace Content.Shared.GameObjects.Components.Body.Part
         ///     attached to.
         /// </summary>
         IBody? Body { get; set; }
+
+        /// <summary>
+        ///     The string to show when displaying this part's name to players.
+        /// </summary>
+        string DisplayName { get; }
 
         /// <summary>
         ///     <see cref="BodyPartType"/> that this <see cref="IBodyPart"/> is considered
@@ -116,5 +121,10 @@ namespace Content.Shared.GameObjects.Components.Body.Part
         ///     false otherwise.
         /// </returns>
         bool DeleteMechanism(IMechanism mechanism);
+
+        /// <summary>
+        ///     Gibs the body part.
+        /// </summary>
+        void Gib();
     }
 }

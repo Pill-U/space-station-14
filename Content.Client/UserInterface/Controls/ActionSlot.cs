@@ -1,17 +1,15 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using Content.Client.GameObjects.Components.Mobs;
 using Content.Client.UserInterface.Stylesheets;
 using Content.Shared.Actions;
 using Content.Shared.GameObjects.Components.Mobs;
+using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
-using Robust.Client.Interfaces.GameObjects.Components;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.Utility;
+using Robust.Shared.GameObjects;
 using Robust.Shared.Input;
-using Robust.Shared.Interfaces.GameObjects;
-using Robust.Shared.Interfaces.Timing;
 using Robust.Shared.IoC;
 using Robust.Shared.Localization;
 using Robust.Shared.Maths;
@@ -53,8 +51,10 @@ namespace Content.Client.UserInterface.Controls
 
         /// <summary>
         /// Is there an action in the slot that can currently be used?
+        /// Target-basedActions on cooldown can still be selected / deselected if they've been configured as such
         /// </summary>
-        public bool CanUseAction => HasAssignment && ActionEnabled && !IsOnCooldown;
+        public bool CanUseAction => Action != null && ActionEnabled &&
+                                    (!IsOnCooldown || (Action.IsTargetAction && !Action.DeselectOnCooldown));
 
         /// <summary>
         /// Item the action is provided by, only valid if Action is an ItemActionPrototype. May be null
@@ -110,6 +110,7 @@ namespace Content.Client.UserInterface.Controls
         private readonly SpriteView _bigItemSpriteView;
         private readonly CooldownGraphic _cooldownGraphic;
         private readonly ActionsUI _actionsUI;
+        private readonly ActionMenu _actionMenu;
         private readonly ClientActionsComponent _actionsComponent;
         private bool _toggledOn;
         // whether button is currently pressed down by mouse or keybind down.
@@ -120,16 +121,17 @@ namespace Content.Client.UserInterface.Controls
         /// Creates an action slot for the specified number
         /// </summary>
         /// <param name="slotIndex">slot index this corresponds to, 0-9 (0 labeled as 1, 8, labeled "9", 9 labeled as "0".</param>
-        public ActionSlot(ActionsUI actionsUI, ClientActionsComponent actionsComponent, byte slotIndex)
+        public ActionSlot(ActionsUI actionsUI, ActionMenu actionMenu, ClientActionsComponent actionsComponent, byte slotIndex)
         {
             _actionsComponent = actionsComponent;
             _actionsUI = actionsUI;
+            _actionMenu = actionMenu;
             _gameTiming = IoCManager.Resolve<IGameTiming>();
             SlotIndex = slotIndex;
             MouseFilter = MouseFilterMode.Stop;
 
-            CustomMinimumSize = (64, 64);
-            SizeFlagsVertical = SizeFlags.None;
+            MinSize = (64, 64);
+            VerticalAlignment = VAlignment.Top;
             TooltipDelay = CustomTooltipDelay;
             TooltipSupplier = SupplyTooltip;
 
@@ -141,29 +143,30 @@ namespace Content.Client.UserInterface.Controls
 
             _bigActionIcon = new TextureRect
             {
-                SizeFlagsHorizontal = SizeFlags.FillExpand,
-                SizeFlagsVertical = SizeFlags.FillExpand,
+                HorizontalExpand = true,
+                VerticalExpand = true,
                 Stretch = TextureRect.StretchMode.Scale,
                 Visible = false
             };
             _bigItemSpriteView = new SpriteView
             {
-                SizeFlagsHorizontal = SizeFlags.FillExpand,
-                SizeFlagsVertical = SizeFlags.FillExpand,
+                HorizontalExpand = true,
+                VerticalExpand = true,
                 Scale = (2,2),
-                Visible = false
+                Visible = false,
+                OverrideDirection = Direction.South,
             };
             _smallActionIcon = new TextureRect
             {
-                SizeFlagsHorizontal = SizeFlags.ShrinkEnd,
-                SizeFlagsVertical = SizeFlags.ShrinkEnd,
+                HorizontalAlignment = HAlignment.Right,
+                VerticalAlignment = VAlignment.Bottom,
                 Stretch = TextureRect.StretchMode.Scale,
                 Visible = false
             };
             _smallItemSpriteView = new SpriteView
             {
-                SizeFlagsHorizontal = SizeFlags.ShrinkEnd,
-                SizeFlagsVertical = SizeFlags.ShrinkEnd,
+                HorizontalAlignment = HAlignment.Right,
+                VerticalAlignment = VAlignment.Bottom,
                 Visible = false
             };
 
@@ -172,28 +175,26 @@ namespace Content.Client.UserInterface.Controls
             // padding to the left of the number to shift it right
             var paddingBox = new HBoxContainer()
             {
-                SizeFlagsHorizontal = SizeFlags.FillExpand,
-                SizeFlagsVertical = SizeFlags.FillExpand,
-                CustomMinimumSize = (64, 64)
+                HorizontalExpand = true,
+                VerticalExpand = true,
+                MinSize = (64, 64)
             };
             paddingBox.AddChild(new Control()
             {
-                CustomMinimumSize = (4, 4),
-                SizeFlagsVertical = SizeFlags.Fill
+                MinSize = (4, 4),
             });
             paddingBox.AddChild(_number);
 
             // padding to the left of the small icon
             var paddingBoxItemIcon = new HBoxContainer()
             {
-                SizeFlagsHorizontal = SizeFlags.FillExpand,
-                SizeFlagsVertical = SizeFlags.FillExpand,
-                CustomMinimumSize = (64, 64)
+                HorizontalExpand = true,
+                VerticalExpand = true,
+                MinSize = (64, 64)
             };
             paddingBoxItemIcon.AddChild(new Control()
             {
-                CustomMinimumSize = (32, 32),
-                SizeFlagsVertical = SizeFlags.Fill
+                MinSize = (32, 32),
             });
             paddingBoxItemIcon.AddChild(new Control
             {
@@ -259,7 +260,7 @@ namespace Content.Client.UserInterface.Controls
 
             if (args.Function == EngineKeyFunctions.UIRightClick)
             {
-                if (!_actionsUI.Locked && !_actionsUI.DragDropHelper.IsDragging)
+                if (!_actionsUI.Locked && !_actionsUI.DragDropHelper.IsDragging && !_actionMenu.IsDragging)
                 {
                     _actionsComponent.Assignments.ClearSlot(_actionsUI.SelectedHotbar, SlotIndex, true);
                     _actionsUI.StopTargeting();
@@ -323,6 +324,14 @@ namespace Content.Client.UserInterface.Controls
             DrawModeChanged();
         }
 
+        protected override void ControlFocusExited()
+        {
+            // lost focus for some reason, cancel the drag if there is one.
+            base.ControlFocusExited();
+            _actionsUI.DragDropHelper.EndDrag();
+            DrawModeChanged();
+        }
+
         /// <summary>
         /// Cancel current press without triggering the action
         /// </summary>
@@ -338,7 +347,9 @@ namespace Content.Client.UserInterface.Controls
         /// </summary>
         public void Depress(bool depress)
         {
+            // action can still be toggled if it's allowed to stay selected
             if (!CanUseAction) return;
+
 
             if (_depressed && !depress)
             {
@@ -582,6 +593,18 @@ namespace Content.Client.UserInterface.Controls
 
         private void DrawModeChanged()
         {
+
+            // show a hover only if the action is usable or another action is being dragged on top of this
+            if (_beingHovered)
+            {
+                if (_actionsUI.DragDropHelper.IsDragging || _actionMenu.IsDragging ||
+                    (HasAssignment && ActionEnabled && !IsOnCooldown))
+                {
+                    SetOnlyStylePseudoClass(ContainerButton.StylePseudoClassHover);
+                    return;
+                }
+            }
+
             // always show the normal empty button style if no action in this slot
             if (!HasAssignment)
             {
@@ -597,15 +620,6 @@ namespace Content.Client.UserInterface.Controls
                 return;
             }
 
-            // show a hover only if the action is usable
-            if (_beingHovered)
-            {
-                if (ActionEnabled && !IsOnCooldown)
-                {
-                    SetOnlyStylePseudoClass(ContainerButton.StylePseudoClassHover);
-                    return;
-                }
-            }
 
             // if it's toggled on, always show the toggled on style (currently same as depressed style)
             if (ToggledOn)

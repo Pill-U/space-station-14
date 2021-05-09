@@ -1,4 +1,5 @@
-﻿namespace Content.Shared.Alert
+﻿#nullable enable
+namespace Content.Shared.Alert
 {
     /// <summary>
     /// Every category of alert. Corresponds to category field in alert prototypes defined in YML
@@ -7,6 +8,7 @@
     {
         Pressure,
         Temperature,
+        Breathing,
         Buckled,
         Health,
         Piloting,
@@ -22,6 +24,7 @@
     public enum AlertType : byte
     {
         Error,
+        LowOxygen,
         LowPressure,
         HighPressure,
         Fire,
@@ -43,6 +46,7 @@
         Parched,
         Pulled,
         Pulling,
+        Magboots,
         Debug1,
         Debug2,
         Debug3,

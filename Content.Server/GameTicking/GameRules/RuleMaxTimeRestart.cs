@@ -4,7 +4,7 @@ using Content.Server.Interfaces.Chat;
 using Content.Server.Interfaces.GameTicking;
 using Robust.Shared.IoC;
 using Robust.Shared.Localization;
-using Timer = Robust.Shared.Timers.Timer;
+using Timer = Robust.Shared.Timing.Timer;
 
 namespace Content.Server.GameTicking.GameRules
 {
@@ -47,7 +47,7 @@ namespace Content.Server.GameTicking.GameRules
 
         private void TimerFired()
         {
-            _gameTicker.EndRound("Time has run out!");
+            _gameTicker.EndRound(Loc.GetString("Time has run out!"));
 
             _chatManager.DispatchServerAnnouncement(Loc.GetString("Restarting in {0} seconds.", (int) RoundEndDelay.TotalSeconds));
 

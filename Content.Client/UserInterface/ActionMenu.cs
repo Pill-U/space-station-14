@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -18,6 +18,7 @@ using Robust.Shared.IoC;
 using Robust.Shared.Localization;
 using Robust.Shared.Log;
 using Robust.Shared.Timing;
+using static Robust.Client.UserInterface.Controls.BaseButton;
 
 namespace Content.Client.UserInterface
 {
@@ -39,8 +40,13 @@ namespace Content.Client.UserInterface
         private static readonly Regex Whitespace = new Regex(@"\s+", RegexOptions.Compiled);
         private static readonly BaseActionPrototype[] EmptyActionList = Array.Empty<BaseActionPrototype>();
 
+        /// <summary>
+        /// Is an action currently being dragged from this window?
+        /// </summary>
+        public bool IsDragging => _dragDropHelper.IsDragging;
+
         // parallel list of actions currently selectable in itemList
-        private BaseActionPrototype[] _actionList;
+        private BaseActionPrototype[] _actionList = new BaseActionPrototype[0];
 
         private readonly ActionManager _actionManager;
         private readonly ClientActionsComponent _actionsComponent;
@@ -51,6 +57,7 @@ namespace Content.Client.UserInterface
         private readonly Button _clearButton;
         private readonly GridContainer _resultsGrid;
         private readonly TextureRect _dragShadow;
+        private readonly IGameHud _gameHud;
         private readonly DragDropHelper<ActionMenuItem> _dragDropHelper;
 
 
@@ -59,8 +66,10 @@ namespace Content.Client.UserInterface
             _actionsComponent = actionsComponent;
             _actionsUI = actionsUI;
             _actionManager = IoCManager.Resolve<ActionManager>();
+            _gameHud = IoCManager.Resolve<IGameHud>();
+
             Title = Loc.GetString("Actions");
-            CustomMinimumSize = (300, 300);
+            MinSize = (300, 300);
 
             Contents.AddChild(new VBoxContainer
             {
@@ -73,13 +82,13 @@ namespace Content.Client.UserInterface
                             (_searchBar = new LineEdit
                             {
                                 StyleClasses = { StyleNano.StyleClassActionSearchBox },
-                                SizeFlagsHorizontal = SizeFlags.FillExpand,
+                                HorizontalExpand = true,
                                 PlaceHolder = Loc.GetString("Search")
                             }),
                             (_filterButton = new MultiselectOptionButton<string>()
                             {
                                 Label = Loc.GetString("Filter")
-                            }),
+                            })
                         }
                     },
                     (_clearButton = new Button
@@ -89,14 +98,14 @@ namespace Content.Client.UserInterface
                     (_filterLabel = new Label()),
                     new ScrollContainer
                     {
-                        //TODO: needed? CustomMinimumSize = new Vector2(200.0f, 0.0f),
-                        SizeFlagsVertical = SizeFlags.FillExpand,
-                        SizeFlagsHorizontal = SizeFlags.FillExpand,
+                        //TODO: needed? MinSize = new Vector2(200.0f, 0.0f),
+                        VerticalExpand = true,
+                        HorizontalExpand = true,
                         Children =
                         {
                             (_resultsGrid = new GridContainer
                             {
-                                MaxWidth = 300
+                                MaxGridWidth = 300
                             })
                         }
                     }
@@ -128,16 +137,15 @@ namespace Content.Client.UserInterface
 
             _dragShadow = new TextureRect
             {
-                CustomMinimumSize = (64, 64),
+                MinSize = (64, 64),
                 Stretch = TextureRect.StretchMode.Scale,
-                Visible = false
+                Visible = false,
+                SetSize = (64, 64)
             };
             UserInterfaceManager.PopupRoot.AddChild(_dragShadow);
-            LayoutContainer.SetSize(_dragShadow, (64, 64));
 
             _dragDropHelper = new DragDropHelper<ActionMenuItem>(OnBeginActionDrag, OnContinueActionDrag, OnEndActionDrag);
         }
-
 
         protected override void EnteredTree()
         {
@@ -145,10 +153,10 @@ namespace Content.Client.UserInterface
             _clearButton.OnPressed += OnClearButtonPressed;
             _searchBar.OnTextChanged += OnSearchTextChanged;
             _filterButton.OnItemSelected += OnFilterItemSelected;
-
+            _gameHud.ActionsButtonDown = true;
             foreach (var actionMenuControl in _resultsGrid.Children)
             {
-                var actionMenuItem = (actionMenuControl as ActionMenuItem);
+                var actionMenuItem = (ActionMenuItem) actionMenuControl;
                 actionMenuItem.OnButtonDown += OnItemButtonDown;
                 actionMenuItem.OnButtonUp += OnItemButtonUp;
                 actionMenuItem.OnPressed += OnItemPressed;
@@ -158,13 +166,14 @@ namespace Content.Client.UserInterface
         protected override void ExitedTree()
         {
             base.ExitedTree();
+            _dragDropHelper.EndDrag();
             _clearButton.OnPressed -= OnClearButtonPressed;
             _searchBar.OnTextChanged -= OnSearchTextChanged;
             _filterButton.OnItemSelected -= OnFilterItemSelected;
-
+            _gameHud.ActionsButtonDown = false;
             foreach (var actionMenuControl in _resultsGrid.Children)
             {
-                var actionMenuItem = (actionMenuControl as ActionMenuItem);
+                var actionMenuItem = (ActionMenuItem) actionMenuControl;
                 actionMenuItem.OnButtonDown -= OnItemButtonDown;
                 actionMenuItem.OnButtonUp -= OnItemButtonUp;
                 actionMenuItem.OnPressed -= OnItemPressed;
@@ -182,21 +191,21 @@ namespace Content.Client.UserInterface
             base.Resized();
             // TODO: Can rework this once https://github.com/space-wizards/RobustToolbox/issues/1392 is done,
             // currently no good way to let the grid know what size it has to "work with", so must manually resize
-            _resultsGrid.MaxWidth = Width;
+            _resultsGrid.MaxGridWidth = Width;
         }
 
         private bool OnBeginActionDrag()
         {
-            _dragShadow.Texture = _dragDropHelper.Dragged.Action.Icon.Frame0();
+            _dragShadow.Texture = _dragDropHelper.Dragged!.Action.Icon.Frame0();
             // don't make visible until frameupdate, otherwise it'll flicker
-            LayoutContainer.SetPosition(_dragShadow, UserInterfaceManager.MousePositionScaled - (32, 32));
+            LayoutContainer.SetPosition(_dragShadow, UserInterfaceManager.MousePositionScaled.Position - (32, 32));
             return true;
         }
 
         private bool OnContinueActionDrag(float frameTime)
         {
             // keep dragged entity centered under mouse
-            LayoutContainer.SetPosition(_dragShadow, UserInterfaceManager.MousePositionScaled - (32, 32));
+            LayoutContainer.SetPosition(_dragShadow, UserInterfaceManager.MousePositionScaled.Position - (32, 32));
             // we don't set this visible until frameupdate, otherwise it flickers
             _dragShadow.Visible = true;
             return true;
@@ -207,13 +216,18 @@ namespace Content.Client.UserInterface
             _dragShadow.Visible = false;
         }
 
-        private void OnItemButtonDown(BaseButton.ButtonEventArgs args)
+        private void OnItemButtonDown(ButtonEventArgs args)
         {
-            if (args.Event.Function != EngineKeyFunctions.UIClick) return;
-            _dragDropHelper.MouseDown(args.Button as ActionMenuItem);
+            if (args.Event.Function != EngineKeyFunctions.UIClick ||
+                args.Button is not ActionMenuItem action)
+            {
+                return;
+            }
+
+            _dragDropHelper.MouseDown(action);
         }
 
-        private void OnItemButtonUp(BaseButton.ButtonEventArgs args)
+        private void OnItemButtonUp(ButtonEventArgs args)
         {
             // note the buttonup only fires on the control that was originally
             // pressed to initiate the drag, NOT the one we are currently hovering
@@ -274,7 +288,13 @@ namespace Content.Client.UserInterface
             _dragDropHelper.EndDrag();
         }
 
-        private void OnItemPressed(BaseButton.ButtonEventArgs args)
+        private void OnItemFocusExited(ActionMenuItem item)
+        {
+            // lost focus, cancel the drag if one is in progress
+            _dragDropHelper.EndDrag();
+        }
+
+        private void OnItemPressed(ButtonEventArgs args)
         {
             if (args.Button is not ActionMenuItem actionMenuItem) return;
             switch (actionMenuItem.Action)
@@ -293,7 +313,7 @@ namespace Content.Client.UserInterface
             _actionsUI.UpdateUI();
         }
 
-        private void OnClearButtonPressed(BaseButton.ButtonEventArgs args)
+        private void OnClearButtonPressed(ButtonEventArgs args)
         {
             _searchBar.Clear();
             _filterButton.DeselectAll();
@@ -396,8 +416,7 @@ namespace Content.Client.UserInterface
                 ItemTag => action is ItemActionPrototype,
                 NotItemTag => action is ActionPrototype,
                 InstantActionTag => action.BehaviorType == BehaviorType.Instant,
-                TargetActionTag => action.BehaviorType == BehaviorType.TargetEntity ||
-                                   action.BehaviorType == BehaviorType.TargetPoint,
+                TargetActionTag => action.IsTargetAction,
                 ToggleActionTag => action.BehaviorType == BehaviorType.Toggle,
                 _ => action.Filters.Contains(tag)
             };
@@ -456,10 +475,9 @@ namespace Content.Client.UserInterface
             _actionList = actions.ToArray();
             foreach (var action in _actionList.OrderBy(act => act.Name.ToString()))
             {
-                var actionItem = new ActionMenuItem(action);
+                var actionItem = new ActionMenuItem(action, OnItemFocusExited);
                 _resultsGrid.Children.Add(actionItem);
                 actionItem.SetActionState(_actionsComponent.IsGranted(action));
-
                 actionItem.OnButtonDown += OnItemButtonDown;
                 actionItem.OnButtonUp += OnItemButtonUp;
                 actionItem.OnPressed += OnItemPressed;
@@ -492,7 +510,7 @@ namespace Content.Client.UserInterface
 
         protected override void FrameUpdate(FrameEventArgs args)
         {
-            base.Update(args);
+            base.FrameUpdate(args);
             _dragDropHelper.Update(args.DeltaSeconds);
         }
     }

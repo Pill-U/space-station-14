@@ -1,4 +1,5 @@
-﻿namespace Content.Shared.Actions
+﻿#nullable enable
+namespace Content.Shared.Actions
 {
     /// <summary>
     /// Every possible action. Corresponds to actionType in action prototypes.
@@ -7,6 +8,10 @@
     {
         Error,
         HumanScream,
+        VoxScream,
+        CombatMode,
+        Disarm,
+        GhostBoo,
         DebugInstant,
         DebugToggle,
         DebugTargetPoint,
@@ -23,6 +28,7 @@
         Error,
         ToggleInternals,
         ToggleLight,
+        ToggleMagboots,
         DebugInstant,
         DebugToggle,
         DebugTargetPoint,

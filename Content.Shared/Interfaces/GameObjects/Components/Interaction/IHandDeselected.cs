@@ -1,15 +1,18 @@
-﻿using System;
+#nullable enable
+using System;
 using JetBrains.Annotations;
+using Robust.Shared.Analyzers;
 using Robust.Shared.GameObjects;
-using Robust.Shared.Interfaces.GameObjects;
 
 namespace Content.Shared.Interfaces.GameObjects.Components
 {
     /// <summary>
     ///     This interface gives components behavior when they're held on a deselected hand.
     /// </summary>
+    [RequiresExplicitImplementation]
     public interface IHandDeselected
     {
+        [Obsolete("Use HandDeselectedMessage instead")]
         void HandDeselected(HandDeselectedEventArgs eventArgs);
     }
 
@@ -27,13 +30,8 @@ namespace Content.Shared.Interfaces.GameObjects.Components
     ///     Raised when an entity item in a hand is deselected.
     /// </summary>
     [PublicAPI]
-    public class HandDeselectedMessage : EntitySystemMessage
+    public class HandDeselectedMessage : HandledEntityEventArgs
     {
-        /// <summary>
-        ///     If this message has already been "handled" by a previous system.
-        /// </summary>
-        public bool Handled { get; set; }
-
         /// <summary>
         ///     Entity that owns the deselected hand.
         /// </summary>

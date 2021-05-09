@@ -1,32 +1,25 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Content.Server.GameObjects.Components.Mobs;
 using Content.Server.GameObjects.Components.Power.ApcNetComponents;
 using Content.Server.GameObjects.EntitySystems;
-using Content.Server.Players;
 using Content.Server.Utility;
 using Content.Shared.Damage;
-using Content.Shared.GameObjects.Components.Body;
 using Content.Shared.GameObjects.Components.Damage;
 using Content.Shared.GameObjects.Components.Medical;
 using Content.Shared.GameObjects.Components.Mobs.State;
 using Content.Shared.GameObjects.EntitySystems;
+using Content.Shared.GameObjects.EntitySystems.ActionBlocker;
 using Content.Shared.GameObjects.Verbs;
 using Content.Shared.Interfaces.GameObjects.Components;
 using Robust.Server.GameObjects;
-using Robust.Server.GameObjects.Components.Container;
-using Robust.Server.GameObjects.Components.UserInterface;
-using Robust.Server.Interfaces.GameObjects;
-using Robust.Server.Interfaces.Player;
+using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
-using Robust.Shared.GameObjects.Systems;
-using Robust.Shared.Interfaces.GameObjects;
-using Robust.Shared.Interfaces.Timing;
 using Robust.Shared.IoC;
 using Robust.Shared.Localization;
 using Robust.Shared.Maths;
+using Robust.Shared.Timing;
 using Robust.Shared.ViewVariables;
 
 namespace Content.Server.GameObjects.Components.Medical
@@ -34,10 +27,9 @@ namespace Content.Server.GameObjects.Components.Medical
     [RegisterComponent]
     [ComponentReference(typeof(IActivate))]
     [ComponentReference(typeof(SharedMedicalScannerComponent))]
-    public class MedicalScannerComponent : SharedMedicalScannerComponent, IActivate, IDragDropOn, IDestroyAct
+    public class MedicalScannerComponent : SharedMedicalScannerComponent, IActivate, IDestroyAct
     {
         [Dependency] private readonly IGameTiming _gameTiming = default!;
-        [Dependency] private readonly IPlayerManager _playerManager = null!;
 
         private static readonly TimeSpan InternalOpenAttemptDelay = TimeSpan.FromSeconds(0.5);
         private TimeSpan _lastInternalOpenAttempt;
@@ -61,7 +53,7 @@ namespace Content.Server.GameObjects.Components.Medical
                 UserInterface.OnReceiveMessage += OnUiReceiveMessage;
             }
 
-            _bodyContainer = ContainerManagerComponent.Ensure<ContainerSlot>($"{Name}-bodyContainer", Owner);
+            _bodyContainer = ContainerHelpers.EnsureContainer<ContainerSlot>(Owner, $"{Name}-bodyContainer");
 
             // TODO: write this so that it checks for a change in power events and acts accordingly.
             var newState = GetUserInterfaceState();
@@ -190,7 +182,7 @@ namespace Content.Server.GameObjects.Components.Medical
             }
         }
 
-        public void Activate(ActivateEventArgs args)
+        void IActivate.Activate(ActivateEventArgs args)
         {
             if (!args.User.TryGetComponent(out IActorComponent? actor))
             {
@@ -279,16 +271,11 @@ namespace Content.Server.GameObjects.Components.Medical
                     {
                         //TODO: Show a 'ERROR: Body is completely devoid of soul' if no Mind owns the entity.
                         var cloningSystem = EntitySystem.Get<CloningSystem>();
-                        cloningSystem.AddToDnaScans(_playerManager
-                            .GetPlayersBy(playerSession =>
-                            {
-                                var mindOwnedMob = playerSession.ContentData()?.Mind?.OwnedEntity;
 
-                                return mindOwnedMob != null && mindOwnedMob ==
-                                    _bodyContainer.ContainedEntity;
-                            }).Single()
-                            .ContentData()
-                            ?.Mind);
+                        if (!_bodyContainer.ContainedEntity.TryGetComponent(out MindComponent? mind) || mind.Mind == null)
+                            break;
+
+                        cloningSystem.AddToDnaScans(mind.Mind);
                     }
 
                     break;
@@ -297,12 +284,7 @@ namespace Content.Server.GameObjects.Components.Medical
             }
         }
 
-        public bool CanDragDropOn(DragDropEventArgs eventArgs)
-        {
-            return eventArgs.Dragged.HasComponent<IBody>();
-        }
-
-        public bool DragDropOn(DragDropEventArgs eventArgs)
+        public override bool DragDropOn(DragDropEventArgs eventArgs)
         {
             _bodyContainer.Insert(eventArgs.Dragged);
             return true;

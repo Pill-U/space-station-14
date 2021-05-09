@@ -1,4 +1,5 @@
-﻿using Robust.Shared;
+#nullable enable
+using Robust.Shared;
 using Robust.Shared.Configuration;
 
 namespace Content.Shared
@@ -12,10 +13,10 @@ namespace Content.Shared
          */
 
         public static readonly CVarDef<string> StatusMoMMIUrl =
-            CVarDef.Create<string>("status.mommiurl", null);
+            CVarDef.Create("status.mommiurl", "", CVar.SERVERONLY);
 
         public static readonly CVarDef<string> StatusMoMMIPassword =
-            CVarDef.Create<string>("status.mommipassword", null);
+            CVarDef.Create("status.mommipassword", "", CVar.SERVERONLY);
 
 
         /*
@@ -29,7 +30,7 @@ namespace Content.Shared
             GameLobbyEnabled = CVarDef.Create("game.lobbyenabled", false, CVar.ARCHIVE);
 
         public static readonly CVarDef<int>
-            GameLobbyDuration = CVarDef.Create("game.lobbyduration", 20, CVar.ARCHIVE);
+            GameLobbyDuration = CVarDef.Create("game.lobbyduration", 60, CVar.ARCHIVE);
 
         public static readonly CVarDef<string>
             GameLobbyDefaultPreset = CVarDef.Create("game.defaultpreset", "Suspicion", CVar.ARCHIVE);
@@ -142,6 +143,10 @@ namespace Content.Shared
         public static readonly CVarDef<string> DatabasePgPassword =
             CVarDef.Create("database.pg_password", "", CVar.SERVERONLY);
 
+        // Basically only exists for integration tests to avoid race conditions.
+        public static readonly CVarDef<bool> DatabaseSynchronous =
+            CVarDef.Create("database.sync", false, CVar.SERVERONLY);
+
 
         /*
          * Outline
@@ -161,6 +166,36 @@ namespace Content.Shared
         public static readonly CVarDef<bool> ParallaxDebug =
             CVarDef.Create("parallax.debug", false, CVar.CLIENTONLY);
 
+        /*
+         * Physics
+         */
+
+        public static readonly CVarDef<float> TileFrictionModifier =
+            CVarDef.Create("physics.tilefriction", 15.0f);
+
+        public static readonly CVarDef<float> StopSpeed =
+            CVarDef.Create("physics.stopspeed", 0.1f);
+
+        /*
+         * Ambience
+         */
+
+        public static readonly CVarDef<bool> AmbienceBasicEnabled =
+            CVarDef.Create("ambience.basicenabled", true, CVar.ARCHIVE | CVar.CLIENTONLY);
+
+        /*
+         * Lobby music
+         */
+
+        public static readonly CVarDef<bool> LobbyMusicEnabled =
+            CVarDef.Create("ambience.lobbymusicenabled", true, CVar.ARCHIVE | CVar.CLIENTONLY);
+
+        /*
+         * HUD
+         */
+
+        public static readonly CVarDef<int> HudTheme =
+            CVarDef.Create("hud.theme", 0, CVar.ARCHIVE | CVar.CLIENTONLY);
 
         /*
          * AI
@@ -207,6 +242,13 @@ namespace Content.Shared
             CVarDef.Create("atmos.monstermos_equalization", true, CVar.SERVERONLY);
 
         /// <summary>
+        ///     Whether atmos superconduction is enabled.
+        /// </summary>
+        /// <remarks> Disabled by default, superconduction is awful. </remarks>
+        public static readonly CVarDef<bool> Superconduction =
+            CVarDef.Create("atmos.superconduction", false, CVar.SERVERONLY);
+
+        /// <summary>
         ///     Maximum time in milliseconds that atmos can take processing.
         /// </summary>
         public static readonly CVarDef<float> AtmosMaxProcessTime =
@@ -238,9 +280,62 @@ namespace Content.Shared
             CVarDef.Create("midi.max_lagged_batches", 8, CVar.SERVERONLY);
 
         /*
+         * Holidays
+         */
+
+        public static readonly CVarDef<bool> HolidaysEnabled = CVarDef.Create("holidays.enabled", true, CVar.SERVERONLY);
+
+        /*
          * Branding stuff
          */
 
         public static readonly CVarDef<bool> BrandingSteam = CVarDef.Create("branding.steam", false, CVar.CLIENTONLY);
+
+        /*
+         * OOC
+         */
+
+        public static readonly CVarDef<bool> OocEnabled = CVarDef.Create("ooc.enabled", true, CVar.NOTIFY);
+
+        public static readonly CVarDef<bool> AdminOocEnabled =
+            CVarDef.Create("ooc.enabled_admin", true, CVar.NOTIFY);
+
+        /*
+         * Context Menu Grouping Types
+         */
+        public static readonly CVarDef<int> ContextMenuGroupingType = CVarDef.Create("context_menu", 0, CVar.CLIENTONLY);
+
+        /*
+         * VOTE
+         */
+
+        public static readonly CVarDef<float> VoteRestartRequiredRatio =
+            CVarDef.Create("vote.restart_required_ratio", 0.8f, CVar.SERVERONLY);
+
+        /*
+         * BAN
+         */
+
+        public static readonly CVarDef<bool> BanHardwareIds =
+            CVarDef.Create("ban.hardware_ids", false, CVar.SERVERONLY);
+        /*
+         * VIEWPORT
+         */
+
+        public static readonly CVarDef<bool> ViewportStretch =
+            CVarDef.Create("viewport.stretch", true, CVar.CLIENTONLY | CVar.ARCHIVE);
+
+        public static readonly CVarDef<int> ViewportFixedScaleFactor =
+            CVarDef.Create("viewport.fixed_scale_factor", 2, CVar.CLIENTONLY | CVar.ARCHIVE);
+
+        // This default is basically specifically chosen so fullscreen/maximized 1080p hits a 2x snap and does NN.
+        public static readonly CVarDef<int> ViewportSnapToleranceMargin =
+            CVarDef.Create("viewport.snap_tolerance_margin", 64, CVar.CLIENTONLY);
+
+        public static readonly CVarDef<int> ViewportSnapToleranceClip =
+            CVarDef.Create("viewport.snap_tolerance_clip", 32, CVar.CLIENTONLY);
+
+        public static readonly CVarDef<bool> ViewportScaleRender =
+            CVarDef.Create("viewport.scale_render", true, CVar.CLIENTONLY | CVar.ARCHIVE);
     }
 }

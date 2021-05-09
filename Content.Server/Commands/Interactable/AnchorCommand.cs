@@ -1,24 +1,26 @@
-﻿#nullable enable
+#nullable enable
 using System.Linq;
 using Content.Server.Administration;
 using Content.Server.GameObjects.Components;
 using Content.Shared.Administration;
-using Robust.Server.Interfaces.Console;
-using Robust.Server.Interfaces.GameObjects;
-using Robust.Server.Interfaces.Player;
+using Robust.Server.GameObjects;
+using Robust.Server.Player;
+using Robust.Shared.Console;
+using Robust.Shared.GameObjects;
 using Robust.Shared.IoC;
 
 namespace Content.Server.Commands.Interactable
 {
     [AdminCommand(AdminFlags.Debug)]
-    class AnchorCommand : IClientCommand
+    class AnchorCommand : IConsoleCommand
     {
         public string Command => "anchor";
         public string Description => "Anchors all entities in a radius around the user";
         public string Help => $"Usage: {Command} <radius>";
 
-        public void Execute(IConsoleShell shell, IPlayerSession? player, string[] args)
+        public void Execute(IConsoleShell shell, string argStr, string[] args)
         {
+            var player = shell.Player as IPlayerSession;
             if (player?.AttachedEntity == null)
             {
                 return;
@@ -26,24 +28,23 @@ namespace Content.Server.Commands.Interactable
 
             if (args.Length != 1)
             {
-                shell.SendText(player, Help);
+                shell.WriteLine(Help);
                 return;
             }
 
             if (!int.TryParse(args[0], out var radius))
             {
-                shell.SendText(player, $"{args[0]} isn't a valid integer.");
+                shell.WriteLine($"{args[0]} isn't a valid integer.");
                 return;
             }
 
             if (radius < 0)
             {
-                shell.SendText(player, "Radius must be positive.");
+                shell.WriteLine("Radius must be positive.");
                 return;
             }
 
-            var serverEntityManager = IoCManager.Resolve<IServerEntityManager>();
-            var entities = serverEntityManager.GetEntitiesInRange(player.AttachedEntity, radius).ToList();
+            var entities = IoCManager.Resolve<IEntityLookup>().GetEntitiesInRange(player.AttachedEntity, radius).ToList();
 
             foreach (var entity in entities)
             {

@@ -1,7 +1,7 @@
 using System;
 using JetBrains.Annotations;
+using Robust.Shared.Analyzers;
 using Robust.Shared.GameObjects;
-using Robust.Shared.Interfaces.GameObjects;
 
 namespace Content.Shared.Interfaces.GameObjects.Components
 {
@@ -12,31 +12,34 @@ namespace Content.Shared.Interfaces.GameObjects.Components
     ///     object in inventory. Unlike IUse, this can be performed on entities that aren't in the active hand,
     ///     even when the active hand is currently holding something else.
     /// </summary>
+    [RequiresExplicitImplementation]
     public interface IActivate
     {
         /// <summary>
         ///     Called when this component is activated by another entity who is in range.
         /// </summary>
+        [Obsolete("Use ActivateInWorldMessage instead")]
         void Activate(ActivateEventArgs eventArgs);
     }
 
     public class ActivateEventArgs : EventArgs, ITargetedInteractEventArgs
     {
-        public IEntity User { get; set; }
-        public IEntity Target { get; set; }
+        public ActivateEventArgs(IEntity user, IEntity target)
+        {
+            User = user;
+            Target = target;
+        }
+
+        public IEntity User { get; }
+        public IEntity Target { get; }
     }
 
     /// <summary>
     ///     Raised when an entity is activated in the world.
     /// </summary>
     [PublicAPI]
-    public class ActivateInWorldMessage : EntitySystemMessage
+    public class ActivateInWorldMessage : HandledEntityEventArgs
     {
-        /// <summary>
-        ///     If this message has already been "handled" by a previous system.
-        /// </summary>
-        public bool Handled { get; set; }
-
         /// <summary>
         ///     Entity that activated the world entity.
         /// </summary>

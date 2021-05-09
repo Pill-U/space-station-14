@@ -1,35 +1,29 @@
-﻿#nullable enable
-using Content.Server.Utility;
+#nullable enable
 using Robust.Shared.GameObjects;
-using Robust.Shared.GameObjects.Components;
-using Robust.Shared.GameObjects.Components.Transform;
-using Robust.Shared.Log;
 using Robust.Shared.ViewVariables;
 
 namespace Content.Server.GameObjects.Components.PA
 {
     public abstract class ParticleAcceleratorPartComponent : Component
     {
-        [ViewVariables] private PhysicsComponent? _collidableComponent;
         [ViewVariables] public ParticleAcceleratorControlBoxComponent? Master;
-        [ViewVariables] protected SnapGridComponent? SnapGrid;
 
         public override void Initialize()
         {
             base.Initialize();
             // FIXME: this has to be an entity system, full stop.
-            if (!Owner.TryGetComponent(out _collidableComponent))
-            {
-                Logger.Error("ParticleAcceleratorPartComponent created with no CollidableComponent");
-            }
-            else
-            {
-                _collidableComponent.AnchoredChanged += OnAnchorChanged;
-            }
 
-            if (!Owner.TryGetComponent(out SnapGrid))
+            Owner.Transform.Anchored = true;
+        }
+
+        public override void HandleMessage(ComponentMessage message, IComponent? component)
+        {
+            base.HandleMessage(message, component);
+            switch (message)
             {
-                Logger.Error("ParticleAcceleratorControlBox was created without SnapGridComponent");
+                case AnchoredChangedMessage:
+                    OnAnchorChanged();
+                    break;
             }
         }
 

@@ -8,229 +8,79 @@
   },
   "states": [
     {
-      "name": "crowbar",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "crowbar"
     },
     {
-      "name": "crowbar_brass",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "crowbar_brass"
     },
     {
-      "name": "crowbar_large",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "crowbar_large"
     },
     {
-      "name": "crowbar_red",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "crowbar_red"
     },
     {
-      "name": "cutters_brass",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "cutters_brass"
     },
     {
-      "name": "cutters_red",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "cutters_red"
     },
     {
-      "name": "cutters_yellow",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "cutters_yellow"
     },
     {
-      "name": "drill_bolt",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "drill_bolt"
     },
     {
-      "name": "drill_screw",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "drill_screw"
     },
     {
-      "name": "flashbang",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "flashbang"
     },
     {
-      "name": "jaws_cutter",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "jaws_cutter"
     },
     {
-      "name": "jaws_pry",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "jaws_pry"
     },
     {
-      "name": "multitool",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "multitool"
     },
     {
-      "name": "multitool_red",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "multitool_red"
     },
     {
-      "name": "multitool_yellow",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "multitool_yellow"
     },
     {
-      "name": "screwdriver",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "screwdriver"
     },
     {
-      "name": "screwdriver_brass",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "screwdriver_brass"
     },
     {
-      "name": "screwdriver_head",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "screwdriver_head"
     },
     {
-      "name": "screwdriver_nuke",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "screwdriver_nuke"
     },
     {
-      "name": "stunbaton",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "stunbaton"
     },
     {
-      "name": "stunbaton_active",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "stunbaton_active"
     },
     {
-      "name": "stunbaton_nocell",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "stunbaton_nocell"
     },
     {
-      "name": "wrench",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "wrench"
     },
     {
-      "name": "wrench_brass",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "wrench_brass"
     },
     {
-      "name": "wrench_medical",
-      "directions": 1,
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "wrench_medical"
     }
   ]
 }

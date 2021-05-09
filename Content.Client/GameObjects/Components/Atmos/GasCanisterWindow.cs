@@ -1,15 +1,10 @@
-﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Content.Shared.GameObjects.Components.Disposal;
-using Robust.Client.Graphics.Drawing;
-using Robust.Client.UserInterface;
+using Content.Shared.GameObjects.Components.Atmos;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.CustomControls;
 using Robust.Shared.Localization;
 using Robust.Shared.Maths;
-using Content.Client.GameObjects.Components.Atmos;
-using Content.Shared.GameObjects.Components.Atmos;
 
 namespace Content.Client.GameObjects.Components.Atmos
 {
@@ -36,10 +31,9 @@ namespace Content.Client.GameObjects.Components.Atmos
 
         public List<ReleasePressureButton> ReleasePressureButtons { get; private set; }
 
-        protected override Vector2? CustomSize => (300, 200);
-
         public GasCanisterWindow()
         {
+            SetSize = MinSize = (450, 200);
             HBoxContainer releasePressureButtons;
 
             Contents.AddChild(new VBoxContainer
@@ -54,9 +48,9 @@ namespace Content.Client.GameObjects.Components.Atmos
                                     {
                                         Children =
                                         {
-                                            new Label(){ Text = Loc.GetString("Label") },
-                                            (LabelInput = new LineEdit() { Text = Name, Editable = false,
-                                                CustomMinimumSize = new Vector2(200, 30)}),
+                                            new Label(){ Text = Loc.GetString("Label: ") },
+                                            (LabelInput = new LineEdit() { Text = Name ?? "", Editable = false,
+                                                MinSize = new Vector2(200, 30)}),
                                             (EditLabelBtn = new Button()),
                                         }
                                     },
@@ -64,7 +58,7 @@ namespace Content.Client.GameObjects.Components.Atmos
                                     {
                                         Children =
                                         {
-                                            new Label {Text = Loc.GetString("Pressure:")},
+                                            new Label {Text = Loc.GetString("Pressure: ")},
                                             (_pressure = new Label())
                                         }
                                     },
@@ -76,7 +70,7 @@ namespace Content.Client.GameObjects.Components.Atmos
                                         {
                                             Children =
                                             {
-                                                new Label() {Text = Loc.GetString("Release pressure:")},
+                                                new Label() {Text = Loc.GetString("Release pressure: ")},
                                                 (_releasePressure = new Label())
                                             }
                                         },
@@ -100,8 +94,8 @@ namespace Content.Client.GameObjects.Components.Atmos
                                 {
                                     Children =
                                     {
-                                        new Label { Text = Loc.GetString("Valve") },
-                                        (ToggleValve = new CheckButton() { Text = Loc.GetString("Open") })
+                                        new Label { Text = Loc.GetString("Valve: ") },
+                                        (ToggleValve = new CheckButton() { Text = Loc.GetString("Closed") })
                                     }
                                 }
                             },
@@ -121,7 +115,6 @@ namespace Content.Client.GameObjects.Components.Atmos
             LabelInputEditable = false;
         }
 
-
         /// <summary>
         /// Update the UI based on <see cref="GasCanisterBoundUserInterfaceState"/>
         /// </summary>
@@ -140,6 +133,14 @@ namespace Content.Client.GameObjects.Components.Atmos
             LabelInputEditable = false;
 
             ToggleValve.Pressed = state.ValveOpened;
+            if (ToggleValve.Pressed)
+            {
+                ToggleValve.Text = Loc.GetString("Open");
+            }
+            else
+            {
+                ToggleValve.Text = Loc.GetString("Closed");
+            }
         }
     }
 

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using Robust.Shared.Audio.Midi;
 using Robust.Shared.GameObjects;
@@ -11,10 +12,20 @@ namespace Content.Shared.GameObjects.Components.Instruments
         public override string Name => "Instrument";
         public override uint? NetID => ContentNetIDs.INSTRUMENTS;
 
+        [ViewVariables(VVAccess.ReadWrite)]
         public virtual byte InstrumentProgram { get; set; }
+
+        [ViewVariables(VVAccess.ReadWrite)]
         public virtual byte InstrumentBank { get; set; }
+
+        [ViewVariables(VVAccess.ReadWrite)]
         public virtual bool AllowPercussion { get; set; }
+
+        [ViewVariables(VVAccess.ReadWrite)]
         public virtual bool AllowProgramChange { get ; set; }
+
+        [ViewVariables(VVAccess.ReadWrite)]
+        public virtual bool RespectMidiLimits { get; set; }
 
         public virtual void Update(float delta)
         {
@@ -61,14 +72,16 @@ namespace Content.Shared.GameObjects.Components.Instruments
         public byte InstrumentBank { get; }
         public bool AllowPercussion { get; }
         public bool AllowProgramChange { get; }
+        public bool RespectMidiLimits { get; }
 
-        public InstrumentState(bool playing, byte instrumentProgram, byte instrumentBank, bool allowPercussion, bool allowProgramChange, uint sequencerTick = 0) : base(ContentNetIDs.INSTRUMENTS)
+        public InstrumentState(bool playing, byte instrumentProgram, byte instrumentBank, bool allowPercussion, bool allowProgramChange, bool respectMidiLimits, uint sequencerTick = 0) : base(ContentNetIDs.INSTRUMENTS)
         {
             Playing = playing;
             InstrumentProgram = instrumentProgram;
             InstrumentBank = instrumentBank;
             AllowPercussion = allowPercussion;
             AllowProgramChange = allowProgramChange;
+            RespectMidiLimits = respectMidiLimits;
         }
     }
 

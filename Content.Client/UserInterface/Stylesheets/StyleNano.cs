@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿#nullable enable
+using System.Linq;
+using Content.Client.Chat;
 using Content.Client.GameObjects.EntitySystems;
 using Content.Client.UserInterface.Controls;
 using Content.Client.Utility;
-using Robust.Client.Graphics.Drawing;
-using Robust.Client.Interfaces.ResourceManagement;
+using Robust.Client.Graphics;
+using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.CustomControls;
@@ -15,6 +17,9 @@ namespace Content.Client.UserInterface.Stylesheets
     public sealed class StyleNano : StyleBase
     {
         public const string StyleClassBorderedWindowPanel = "BorderedWindowPanel";
+        public const string StyleClassInventorySlotBackground = "InventorySlotBackground";
+        public const string StyleClassHandSlotHighlight = "HandSlotHighlight";
+        public const string StyleClassChatSubPanel = "ChatSubPanel";
         public const string StyleClassTransparentBorderedWindowPanel = "TransparentBorderedWindowPanel";
         public const string StyleClassHotbarPanel = "HotbarPanel";
         public const string StyleClassTooltipPanel = "tooltipBox";
@@ -28,7 +33,10 @@ namespace Content.Client.UserInterface.Stylesheets
         public const string StyleClassHotbarSlotNumber = "hotbarSlotNumber";
         public const string StyleClassActionSearchBox = "actionSearchBox";
         public const string StyleClassActionMenuItemRevoked = "actionMenuItemRevoked";
-
+        public const string StyleClassChatLineEdit = "chatLineEdit";
+        public const string StyleClassChatChannelSelectorButton = "chatSelectorOptionButton";
+        public const string StyleClassChatFilterOptionButton = "chatFilterOptionButton";
+        public const string StyleClassContextMenuCount = "contextMenuCount";
 
         public const string StyleClassSliderRed = "Red";
         public const string StyleClassSliderGreen = "Green";
@@ -44,7 +52,9 @@ namespace Content.Client.UserInterface.Stylesheets
         public static readonly Color NanoGold = Color.FromHex("#A88B5E");
 
         public static readonly Color ButtonColorDefault = Color.FromHex("#464966");
+        public static readonly Color ButtonColorDefaultRed = Color.FromHex("#D43B3B");
         public static readonly Color ButtonColorHovered = Color.FromHex("#575b7f");
+        public static readonly Color ButtonColorHoveredRed = Color.FromHex("#DF6B6B");
         public static readonly Color ButtonColorPressed = Color.FromHex("#3e6c45");
         public static readonly Color ButtonColorDisabled = Color.FromHex("#30313c");
 
@@ -76,7 +86,6 @@ namespace Content.Client.UserInterface.Stylesheets
             var notoSansBold16 = resCache.GetFont("/Fonts/NotoSans/NotoSans-Bold.ttf", 16);
             var notoSansBold18 = resCache.GetFont("/Fonts/NotoSans/NotoSans-Bold.ttf", 18);
             var notoSansBold20 = resCache.GetFont("/Fonts/NotoSans/NotoSans-Bold.ttf", 20);
-            var textureCloseButton = resCache.GetTexture("/Textures/Interface/Nano/cross.svg.png");
             var windowHeaderTex = resCache.GetTexture("/Textures/Interface/Nano/window_header.png");
             var windowHeader = new StyleBoxTexture
             {
@@ -99,6 +108,21 @@ namespace Content.Client.UserInterface.Stylesheets
                 Texture = borderedWindowBackgroundTex,
             };
             borderedWindowBackground.SetPatchMargin(StyleBox.Margin.All, 2);
+
+            var invSlotBgTex = resCache.GetTexture("/Textures/Interface/Inventory/inv_slot_background.png");
+            var invSlotBg = new StyleBoxTexture
+            {
+                Texture = invSlotBgTex,
+            };
+            invSlotBg.SetPatchMargin(StyleBox.Margin.All, 2);
+            invSlotBg.SetContentMarginOverride(StyleBox.Margin.All, 0);
+
+            var handSlotHighlightTex = resCache.GetTexture("/Textures/Interface/Inventory/hand_slot_highlight.png");
+            var handSlotHighlight = new StyleBoxTexture
+            {
+                Texture = handSlotHighlightTex,
+            };
+            handSlotHighlight.SetPatchMargin(StyleBox.Margin.All, 2);
 
             var borderedTransparentWindowBackgroundTex = resCache.GetTexture("/Textures/Interface/Nano/transparent_window_background_bordered.png");
             var borderedTransparentWindowBackground = new StyleBoxTexture
@@ -162,6 +186,49 @@ namespace Content.Client.UserInterface.Stylesheets
                 Modulate = ButtonColorPressed
             };
 
+            var buttonTex = resCache.GetTexture("/Textures/Interface/Nano/button.svg.96dpi.png");
+            var topButtonBase = new StyleBoxTexture
+            {
+             Texture = buttonTex,
+            };
+            topButtonBase.SetPatchMargin(StyleBox.Margin.All, 10);
+            topButtonBase.SetPadding(StyleBox.Margin.All, 0);
+            topButtonBase.SetContentMarginOverride(StyleBox.Margin.All, 0);
+
+            var topButtonOpenRight = new StyleBoxTexture(topButtonBase)
+            {
+             Texture = new AtlasTexture(buttonTex, UIBox2.FromDimensions((0, 0), (14, 24))),
+            };
+            topButtonOpenRight.SetPatchMargin(StyleBox.Margin.Right, 0);
+
+            var topButtonOpenLeft = new StyleBoxTexture(topButtonBase)
+            {
+             Texture = new AtlasTexture(buttonTex, UIBox2.FromDimensions((10, 0), (14, 24))),
+            };
+            topButtonOpenLeft.SetPatchMargin(StyleBox.Margin.Left, 0);
+
+            var topButtonSquare = new StyleBoxTexture(topButtonBase)
+            {
+             Texture = new AtlasTexture(buttonTex, UIBox2.FromDimensions((10, 0), (3, 24))),
+            };
+            topButtonSquare.SetPatchMargin(StyleBox.Margin.Horizontal, 0);
+
+            var chatChannelButtonTex = resCache.GetTexture("/Textures/Interface/Nano/rounded_button.svg.96dpi.png");
+            var chatChannelButton = new StyleBoxTexture
+            {
+                Texture = chatChannelButtonTex,
+            };
+            chatChannelButton.SetPatchMargin(StyleBox.Margin.All, 5);
+            chatChannelButton.SetPadding(StyleBox.Margin.All, 2);
+
+            var chatFilterButtonTex = resCache.GetTexture("/Textures/Interface/Nano/rounded_button_bordered.svg.96dpi.png");
+            var chatFilterButton = new StyleBoxTexture
+            {
+                Texture = chatFilterButtonTex,
+            };
+            chatFilterButton.SetPatchMargin(StyleBox.Margin.All, 5);
+            chatFilterButton.SetPadding(StyleBox.Margin.All, 2);
+
             var textureInvertedTriangle = resCache.GetTexture("/Textures/Interface/Nano/inverted_triangle.svg.png");
 
             var lineEditTex = resCache.GetTexture("/Textures/Interface/Nano/lineedit.png");
@@ -171,6 +238,13 @@ namespace Content.Client.UserInterface.Stylesheets
             };
             lineEdit.SetPatchMargin(StyleBox.Margin.All, 3);
             lineEdit.SetContentMarginOverride(StyleBox.Margin.Horizontal, 5);
+
+            var chatSubBGTex = resCache.GetTexture("/Textures/Interface/Nano/chat_sub_background.png");
+            var chatSubBG = new StyleBoxTexture
+            {
+                Texture = chatSubBGTex,
+            };
+            chatSubBG.SetPatchMargin(StyleBox.Margin.All, 2);
 
             var actionSearchBoxTex = resCache.GetTexture("/Textures/Interface/Nano/black_panel_dark_thin_border.png");
             var actionSearchBox = new StyleBoxTexture
@@ -191,35 +265,6 @@ namespace Content.Client.UserInterface.Stylesheets
             tabContainerBoxActive.SetContentMarginOverride(StyleBox.Margin.Horizontal, 5);
             var tabContainerBoxInactive = new StyleBoxFlat {BackgroundColor = new Color(32, 32, 32)};
             tabContainerBoxInactive.SetContentMarginOverride(StyleBox.Margin.Horizontal, 5);
-
-            var vScrollBarGrabberNormal = new StyleBoxFlat
-            {
-                BackgroundColor = Color.Gray.WithAlpha(0.35f), ContentMarginLeftOverride = 10,
-                ContentMarginTopOverride = 10
-            };
-            var vScrollBarGrabberHover = new StyleBoxFlat
-            {
-                BackgroundColor = new Color(140, 140, 140).WithAlpha(0.35f), ContentMarginLeftOverride = 10,
-                ContentMarginTopOverride = 10
-            };
-            var vScrollBarGrabberGrabbed = new StyleBoxFlat
-            {
-                BackgroundColor = new Color(160, 160, 160).WithAlpha(0.35f), ContentMarginLeftOverride = 10,
-                ContentMarginTopOverride = 10
-            };
-
-            var hScrollBarGrabberNormal = new StyleBoxFlat
-            {
-                BackgroundColor = Color.Gray.WithAlpha(0.35f), ContentMarginTopOverride = 10
-            };
-            var hScrollBarGrabberHover = new StyleBoxFlat
-            {
-                BackgroundColor = new Color(140, 140, 140).WithAlpha(0.35f), ContentMarginTopOverride = 10
-            };
-            var hScrollBarGrabberGrabbed = new StyleBoxFlat
-            {
-                BackgroundColor = new Color(160, 160, 160).WithAlpha(0.35f), ContentMarginTopOverride = 10
-            };
 
             var progressBarBackground = new StyleBoxFlat
             {
@@ -355,6 +400,20 @@ namespace Content.Client.UserInterface.Stylesheets
                     {
                         new StyleProperty(PanelContainer.StylePropertyPanel, borderedTransparentWindowBackground),
                     }),
+                // inventory slot background
+                new StyleRule(
+                    new SelectorElement(null, new[] {StyleClassInventorySlotBackground}, null, null),
+                    new[]
+                    {
+                        new StyleProperty(PanelContainer.StylePropertyPanel, invSlotBg),
+                    }),
+                // hand slot highlight
+                new StyleRule(
+                    new SelectorElement(null, new[] {StyleClassHandSlotHighlight}, null, null),
+                    new[]
+                    {
+                        new StyleProperty(PanelContainer.StylePropertyPanel, handSlotHighlight),
+                    }),
                 // Hotbar background
                 new StyleRule(new SelectorElement(typeof(PanelContainer), new[] {StyleClassHotbarPanel}, null, null),
                     new[]
@@ -367,31 +426,6 @@ namespace Content.Client.UserInterface.Stylesheets
                     new[]
                     {
                         new StyleProperty(PanelContainer.StylePropertyPanel, windowHeader),
-                    }),
-                // Window close button base texture.
-                new StyleRule(
-                    new SelectorElement(typeof(TextureButton), new[] {SS14Window.StyleClassWindowCloseButton}, null,
-                        null),
-                    new[]
-                    {
-                        new StyleProperty(TextureButton.StylePropertyTexture, textureCloseButton),
-                        new StyleProperty(Control.StylePropertyModulateSelf, Color.FromHex("#4B596A")),
-                    }),
-                // Window close button hover.
-                new StyleRule(
-                    new SelectorElement(typeof(TextureButton), new[] {SS14Window.StyleClassWindowCloseButton}, null,
-                        new[] {TextureButton.StylePseudoClassHover}),
-                    new[]
-                    {
-                        new StyleProperty(Control.StylePropertyModulateSelf, Color.FromHex("#7F3636")),
-                    }),
-                // Window close button pressed.
-                new StyleRule(
-                    new SelectorElement(typeof(TextureButton), new[] {SS14Window.StyleClassWindowCloseButton}, null,
-                        new[] {TextureButton.StylePseudoClassPressed}),
-                    new[]
-                    {
-                        new StyleProperty(Control.StylePropertyModulateSelf, Color.FromHex("#753131")),
                     }),
 
                 // Shapes for the buttons.
@@ -409,6 +443,10 @@ namespace Content.Client.UserInterface.Stylesheets
                 Element<ContainerButton>().Class(ContainerButton.StyleClassButton)
                     .Class(ButtonOpenBoth)
                     .Prop(ContainerButton.StylePropertyStyleBox, BaseButtonOpenBoth),
+
+                Element<ContainerButton>().Class(ContainerButton.StyleClassButton)
+                    .Class(ButtonSquare)
+                    .Prop(ContainerButton.StylePropertyStyleBox, BaseButtonSquare),
 
                 new StyleRule(new SelectorElement(typeof(Label), new[] { Button.StyleClassButton }, null, null), new[]
                 {
@@ -530,6 +568,20 @@ namespace Content.Client.UserInterface.Stylesheets
                     {
                         new StyleProperty("font-color", Color.Gray),
                     }),
+                // Chat lineedit - we don't actually draw a stylebox around the lineedit itself, we put it around the
+                // input + other buttons, so we must clear the default stylebox
+                new StyleRule(new SelectorElement(typeof(LineEdit), new[] {StyleClassChatLineEdit}, null, null),
+                    new[]
+                    {
+                        new StyleProperty(LineEdit.StylePropertyStyleBox, new StyleBoxEmpty()),
+                    }),
+
+                // chat subpanels (chat lineedit backing, popup backings)
+                new StyleRule(new SelectorElement(typeof(PanelContainer), new[] {StyleClassChatSubPanel}, null, null),
+                    new[]
+                    {
+                        new StyleProperty(PanelContainer.StylePropertyPanel, chatSubBG),
+                    }),
 
                 // Action searchbox lineedit
                 new StyleRule(new SelectorElement(typeof(LineEdit), new[] {StyleClassActionSearchBox}, null, null),
@@ -545,53 +597,6 @@ namespace Content.Client.UserInterface.Stylesheets
                         new StyleProperty(TabContainer.StylePropertyPanelStyleBox, tabContainerPanel),
                         new StyleProperty(TabContainer.StylePropertyTabStyleBox, tabContainerBoxActive),
                         new StyleProperty(TabContainer.StylePropertyTabStyleBoxInactive, tabContainerBoxInactive),
-                    }),
-
-                // Scroll bars
-                new StyleRule(new SelectorElement(typeof(VScrollBar), null, null, null),
-                    new[]
-                    {
-                        new StyleProperty(ScrollBar.StylePropertyGrabber,
-                            vScrollBarGrabberNormal),
-                    }),
-
-                new StyleRule(
-                    new SelectorElement(typeof(VScrollBar), null, null, new[] {ScrollBar.StylePseudoClassHover}),
-                    new[]
-                    {
-                        new StyleProperty(ScrollBar.StylePropertyGrabber,
-                            vScrollBarGrabberHover),
-                    }),
-
-                new StyleRule(
-                    new SelectorElement(typeof(VScrollBar), null, null, new[] {ScrollBar.StylePseudoClassGrabbed}),
-                    new[]
-                    {
-                        new StyleProperty(ScrollBar.StylePropertyGrabber,
-                            vScrollBarGrabberGrabbed),
-                    }),
-
-                new StyleRule(new SelectorElement(typeof(HScrollBar), null, null, null),
-                    new[]
-                    {
-                        new StyleProperty(ScrollBar.StylePropertyGrabber,
-                            hScrollBarGrabberNormal),
-                    }),
-
-                new StyleRule(
-                    new SelectorElement(typeof(HScrollBar), null, null, new[] {ScrollBar.StylePseudoClassHover}),
-                    new[]
-                    {
-                        new StyleProperty(ScrollBar.StylePropertyGrabber,
-                            hScrollBarGrabberHover),
-                    }),
-
-                new StyleRule(
-                    new SelectorElement(typeof(HScrollBar), null, null, new[] {ScrollBar.StylePseudoClassGrabbed}),
-                    new[]
-                    {
-                        new StyleProperty(ScrollBar.StylePropertyGrabber,
-                            hScrollBarGrabberGrabbed),
                     }),
 
                 // ProgressBar
@@ -672,6 +677,13 @@ namespace Content.Client.UserInterface.Stylesheets
                 new StyleRule(new SelectorElement(typeof(RichTextLabel), new[] {StyleClassTooltipActionRequirements}, null, null), new[]
                 {
                     new StyleProperty("font", notoSans15)
+                }),
+
+                // small number for the context menu
+                new StyleRule(new SelectorElement(typeof(Label), new[] {StyleClassContextMenuCount}, null, null), new[]
+                {
+                    new StyleProperty("font", notoSans10),
+                    new StyleProperty(Label.StylePropertyAlignMode, Label.AlignMode.Right),
                 }),
 
                 // hotbar slot
@@ -808,8 +820,43 @@ namespace Content.Client.UserInterface.Stylesheets
                 }),
 
                 // Those top menu buttons.
-                Element<GameHud.TopButton>()
-                    .Prop(Button.StylePropertyStyleBox, BaseButton),
+                // these use slight variations on the various BaseButton styles so that the content within them appears centered,
+                // which is NOT the case for the default BaseButton styles (OpenLeft/OpenRight adds extra padding on one of the sides
+                // which makes the TopButton icons appear off-center, which we don't want).
+                new StyleRule(
+                    new SelectorElement(typeof(GameHud.TopButton), new[] {ButtonSquare}, null, null),
+                    new[]
+                    {
+                        new StyleProperty(Button.StylePropertyStyleBox, topButtonSquare),
+                    }),
+
+                new StyleRule(
+                    new SelectorElement(typeof(GameHud.TopButton), new[] {ButtonOpenLeft}, null, null),
+                    new[]
+                    {
+                        new StyleProperty(Button.StylePropertyStyleBox, topButtonOpenLeft),
+                    }),
+
+                new StyleRule(
+                    new SelectorElement(typeof(GameHud.TopButton), new[] {ButtonOpenRight}, null, null),
+                    new[]
+                    {
+                        new StyleProperty(Button.StylePropertyStyleBox, topButtonOpenRight),
+                    }),
+
+                new StyleRule(
+                    new SelectorElement(typeof(GameHud.TopButton), null, null, new[] {Button.StylePseudoClassNormal}),
+                    new[]
+                    {
+                        new StyleProperty(Button.StylePropertyModulateSelf, ButtonColorDefault),
+                    }),
+
+                new StyleRule(
+                    new SelectorElement(typeof(GameHud.TopButton), new[] {GameHud.TopButton.StyleClassRedTopButton}, null, new[] {Button.StylePseudoClassNormal}),
+                    new[]
+                    {
+                        new StyleProperty(Button.StylePropertyModulateSelf, ButtonColorDefaultRed),
+                    }),
 
                 new StyleRule(
                     new SelectorElement(typeof(GameHud.TopButton), null, null, new[] {Button.StylePseudoClassNormal}),
@@ -830,6 +877,13 @@ namespace Content.Client.UserInterface.Stylesheets
                     new[]
                     {
                         new StyleProperty(Button.StylePropertyModulateSelf, ButtonColorHovered),
+                    }),
+
+                new StyleRule(
+                    new SelectorElement(typeof(GameHud.TopButton), new[] {GameHud.TopButton.StyleClassRedTopButton}, null, new[] {Button.StylePseudoClassHover}),
+                    new[]
+                    {
+                        new StyleProperty(Button.StylePropertyModulateSelf, ButtonColorHoveredRed),
                     }),
 
                 new StyleRule(
@@ -919,6 +973,33 @@ namespace Content.Client.UserInterface.Stylesheets
                     new StyleProperty(Slider.StylePropertyFill, sliderFillBlue),
                 }),
 
+                // chat channel option selector
+                new StyleRule(new SelectorElement(typeof(Button), new[] {StyleClassChatChannelSelectorButton}, null, null), new[]
+                {
+                    new StyleProperty(Button.StylePropertyStyleBox, chatChannelButton),
+                }),
+                // chat filter button
+                new StyleRule(new SelectorElement(typeof(ContainerButton), new[] {StyleClassChatFilterOptionButton}, null, null), new[]
+                {
+                    new StyleProperty(ContainerButton.StylePropertyStyleBox, chatFilterButton),
+                }),
+                new StyleRule(new SelectorElement(typeof(ContainerButton), new[] {StyleClassChatFilterOptionButton}, null, new[] {ContainerButton.StylePseudoClassNormal}), new[]
+                {
+                    new StyleProperty(Control.StylePropertyModulateSelf, ButtonColorDefault),
+                }),
+                new StyleRule(new SelectorElement(typeof(ContainerButton), new[] {StyleClassChatFilterOptionButton}, null, new[] {ContainerButton.StylePseudoClassHover}), new[]
+                {
+                    new StyleProperty(Control.StylePropertyModulateSelf, ButtonColorHovered),
+                }),
+                new StyleRule(new SelectorElement(typeof(ContainerButton), new[] {StyleClassChatFilterOptionButton}, null, new[] {ContainerButton.StylePseudoClassPressed}), new[]
+                {
+                    new StyleProperty(Control.StylePropertyModulateSelf, ButtonColorPressed),
+                }),
+                new StyleRule(new SelectorElement(typeof(ContainerButton), new[] {StyleClassChatFilterOptionButton}, null, new[] {ContainerButton.StylePseudoClassDisabled}), new[]
+                {
+                    new StyleProperty(Control.StylePropertyModulateSelf, ButtonColorDisabled),
+                }),
+
                 // OptionButton
                 new StyleRule(new SelectorElement(typeof(OptionButton), null, null, null), new[]
                 {
@@ -955,7 +1036,12 @@ namespace Content.Client.UserInterface.Stylesheets
                 new StyleRule(new SelectorElement(typeof(PanelContainer), new []{ ClassHighDivider}, null, null), new []
                 {
                     new StyleProperty(PanelContainer.StylePropertyPanel, new StyleBoxFlat { BackgroundColor = NanoGold, ContentMarginBottomOverride = 2, ContentMarginLeftOverride = 2}),
-                })
+                }),
+
+                Element<PanelContainer>().Class(ClassAngleRect)
+                    .Prop(PanelContainer.StylePropertyPanel, BaseAngleRect)
+                    .Prop(Control.StylePropertyModulateSelf, Color.FromHex("#25252A")),
+
             }).ToList());
         }
     }

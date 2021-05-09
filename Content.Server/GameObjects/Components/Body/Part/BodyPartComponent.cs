@@ -1,8 +1,6 @@
 ﻿#nullable enable
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Content.Server.Commands;
 using Content.Server.Utility;
 using Content.Shared.GameObjects.Components.Body;
 using Content.Shared.GameObjects.Components.Body.Mechanism;
@@ -11,14 +9,12 @@ using Content.Shared.GameObjects.Components.Body.Surgery;
 using Content.Shared.GameObjects.Verbs;
 using Content.Shared.Interfaces;
 using Content.Shared.Interfaces.GameObjects.Components;
+using Content.Shared.Utility;
 using Robust.Server.Console;
 using Robust.Server.GameObjects;
-using Robust.Server.GameObjects.Components.Container;
-using Robust.Server.GameObjects.Components.UserInterface;
-using Robust.Server.Interfaces.GameObjects;
-using Robust.Server.Interfaces.Player;
+using Robust.Server.Player;
+using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
-using Robust.Shared.Interfaces.GameObjects;
 using Robust.Shared.IoC;
 using Robust.Shared.Localization;
 using Robust.Shared.Log;
@@ -57,13 +53,14 @@ namespace Content.Server.GameObjects.Components.Body.Part
             base.OnRemoveMechanism(mechanism);
 
             _mechanismContainer.Remove(mechanism.Owner);
+            mechanism.Owner.RandomOffset(0.25f);
         }
 
         public override void Initialize()
         {
             base.Initialize();
 
-            _mechanismContainer = ContainerManagerComponent.Ensure<Container>($"{Name}-{nameof(BodyPartComponent)}", Owner);
+            _mechanismContainer = Owner.EnsureContainer<Container>($"{Name}-{nameof(BodyPartComponent)}");
 
             // This is ran in Startup as entities spawned in Initialize
             // are not synced to the client since they are assumed to be
@@ -97,12 +94,12 @@ namespace Content.Server.GameObjects.Components.Body.Part
             }
         }
 
-        public async Task AfterInteract(AfterInteractEventArgs eventArgs)
+        async Task<bool> IAfterInteract.AfterInteract(AfterInteractEventArgs eventArgs)
         {
             // TODO BODY
             if (eventArgs.Target == null)
             {
-                return;
+                return false;
             }
 
             CloseAllSurgeryUIs();
@@ -114,6 +111,8 @@ namespace Content.Server.GameObjects.Components.Body.Part
             {
                 SendSlots(eventArgs, body);
             }
+
+            return true;
         }
 
         private void SendSlots(AfterInteractEventArgs eventArgs, IBody body)
@@ -123,25 +122,23 @@ namespace Content.Server.GameObjects.Components.Body.Part
 
             // Here we are trying to grab a list of all empty BodySlots adjacent to an existing BodyPart that can be
             // attached to. i.e. an empty left hand slot, connected to an occupied left arm slot would be valid.
-            var unoccupiedSlots = body.Slots.Keys.ToList().Except(body.Parts.Keys.ToList()).ToList();
-            foreach (var slot in unoccupiedSlots)
+            foreach (var slot in body.EmptySlots)
             {
-                if (!body.TryGetSlotType(slot, out var typeResult) ||
-                    typeResult != PartType ||
-                    !body.TryGetPartConnections(slot, out var parts))
+                if (slot.PartType != PartType)
                 {
                     continue;
                 }
 
-                foreach (var connectedPart in parts)
+                foreach (var connection in slot.Connections)
                 {
-                    if (!connectedPart.CanAttachPart(this))
+                    if (connection.Part == null ||
+                        !connection.Part.CanAttachPart(this))
                     {
                         continue;
                     }
 
                     _optionsCache.Add(_idHash, slot);
-                    toSend.Add(slot, _idHash++);
+                    toSend.Add(slot.Id, _idHash++);
                 }
             }
 
@@ -155,7 +152,7 @@ namespace Content.Server.GameObjects.Components.Body.Part
             }
             else // If surgery cannot be performed, show message saying so.
             {
-                eventArgs.Target.PopupMessage(eventArgs.User,
+                eventArgs.Target?.PopupMessage(eventArgs.User,
                     Loc.GetString("You see no way to install {0:theName}.", Owner));
             }
         }
@@ -269,7 +266,7 @@ namespace Content.Server.GameObjects.Components.Body.Part
                     return;
                 }
 
-                body.TryAddPart($"{nameof(AttachBodyPartVerb)}-{component.Owner.Uid}", component, true);
+                body.SetPart($"{nameof(AttachBodyPartVerb)}-{component.Owner.Uid}", component);
             }
         }
     }

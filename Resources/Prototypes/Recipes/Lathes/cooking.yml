@@ -1,0 +1,39 @@
+- type: latheRecipe
+  id: ButchCleaver
+  icon: Objects/Weapons/Melee/cleaver.rsi
+  result: ButchCleaver
+  completetime: 500
+  materials:
+    steel: 300
+
+- type: latheRecipe
+  id: KitchenKnife
+  icon: Objects/Weapons/Melee/kitchen_knife.rsi
+  result: KitchenKnife
+  completetime: 400
+  materials:
+    steel: 200
+
+- type: latheRecipe
+  id: DrinkMug
+  icon: Objects/Consumable/Drinks/mug.rsi
+  result: DrinkMug
+  completetime: 200
+  materials:
+    glass: 50
+
+- type: latheRecipe
+  id: DrinkMugMetal
+  icon: Objects/Consumable/Drinks/mug_metal.rsi
+  result: DrinkMugMetal
+  completetime: 200
+  materials:
+    steel: 50
+
+- type: latheRecipe
+  id: DrinkGlass
+  icon: Objects/Consumable/Drinks/glass_clear.rsi
+  result: DrinkGlass
+  completetime: 200
+  materials:
+    glass: 50

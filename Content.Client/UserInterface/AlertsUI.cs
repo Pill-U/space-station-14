@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Content.Client.Chat;
+using Content.Client.Interfaces.Chat;
 using Content.Client.UserInterface.Stylesheets;
-using Robust.Client.Interfaces.Graphics;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
+using Robust.Shared.IoC;
 using Robust.Shared.Maths;
 
 namespace Content.Client.UserInterface
@@ -12,6 +13,7 @@ namespace Content.Client.UserInterface
     /// </summary>
     public sealed class AlertsUI : Control
     {
+        public const float ChatSeparation = 38f;
         public GridContainer Grid { get; }
 
         public AlertsUI()
@@ -27,18 +29,52 @@ namespace Content.Client.UserInterface
             var panelContainer = new PanelContainer
             {
                 StyleClasses = {StyleNano.StyleClassTransparentBorderedWindowPanel},
-                SizeFlagsHorizontal = SizeFlags.ShrinkEnd,
-                SizeFlagsVertical = SizeFlags.None
+                HorizontalAlignment = HAlignment.Right,
+                VerticalAlignment = VAlignment.Top
             };
             AddChild(panelContainer);
 
             Grid = new GridContainer
             {
-                MaxHeight = 64,
+                MaxGridHeight = 64,
                 ExpandBackwards = true
             };
             panelContainer.AddChild(Grid);
+
+            MinSize = (64, 64);
         }
+
+        protected override void EnteredTree()
+        {
+            base.EnteredTree();
+            var _chatManager = IoCManager.Resolve<IChatManager>();
+            _chatManager.OnChatBoxResized += OnChatResized;
+            OnChatResized(new ChatResizedEventArgs(ChatBox.InitialChatBottom));
+        }
+
+        protected override void ExitedTree()
+        {
+            base.ExitedTree();
+            var _chatManager = IoCManager.Resolve<IChatManager>();
+            _chatManager.OnChatBoxResized -= OnChatResized;
+        }
+
+
+        private void OnChatResized(ChatResizedEventArgs chatResizedEventArgs)
+        {
+            // resize us to fit just below the chatbox
+            var _chatManager = IoCManager.Resolve<IChatManager>();
+            if (_chatManager.CurrentChatBox != null)
+            {
+                LayoutContainer.SetMarginTop(this, chatResizedEventArgs.NewBottom + ChatSeparation);
+            }
+            else
+            {
+                LayoutContainer.SetMarginTop(this, 250);
+            }
+        }
+
+        // This makes no sense but I'm leaving it in place in case I break anything by removing it.
 
         protected override void Resized()
         {
@@ -46,18 +82,12 @@ namespace Content.Client.UserInterface
             // this is here because there isn't currently a good way to allow the grid to adjust its height based
             // on constraints, otherwise we would use anchors to lay it out
             base.Resized();
-            Grid.MaxHeight = Height;
-        }
-
-        protected override Vector2 CalculateMinimumSize()
-        {
-            // allows us to shrink down to a single row
-            return (64, 64);
+            Grid.MaxGridHeight = Height;
         }
 
         protected override void UIScaleChanged()
         {
-            Grid.MaxHeight = Height;
+            Grid.MaxGridHeight = Height;
             base.UIScaleChanged();
         }
     }

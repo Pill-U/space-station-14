@@ -9,9 +9,7 @@ using Content.Shared.GameObjects.Components.Body.Surgery;
 using Content.Shared.Interfaces;
 using Content.Shared.Interfaces.GameObjects.Components;
 using Robust.Server.GameObjects;
-using Robust.Server.GameObjects.Components.UserInterface;
-using Robust.Server.Interfaces.GameObjects;
-using Robust.Server.Interfaces.Player;
+using Robust.Server.Player;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Localization;
 using Robust.Shared.Utility;
@@ -36,11 +34,11 @@ namespace Content.Server.GameObjects.Components.Body
             }
         }
 
-        async Task IAfterInteract.AfterInteract(AfterInteractEventArgs eventArgs)
+        async Task<bool> IAfterInteract.AfterInteract(AfterInteractEventArgs eventArgs)
         {
             if (eventArgs.Target == null)
             {
-                return;
+                return false;
             }
 
             CloseAllSurgeryUIs();
@@ -61,6 +59,8 @@ namespace Content.Server.GameObjects.Components.Body
                     eventArgs.Target.PopupMessage(eventArgs.User, Loc.GetString("You can't fit it in!"));
                 }
             }
+
+            return true;
         }
 
         private void SendBodyPartListToUser(AfterInteractEventArgs eventArgs, IBody body)
@@ -68,13 +68,13 @@ namespace Content.Server.GameObjects.Components.Body
             // Create dictionary to send to client (text to be shown : data sent back if selected)
             var toSend = new Dictionary<string, int>();
 
-            foreach (var (key, value) in body.Parts)
+            foreach (var (part, slot) in body.Parts)
             {
                 // For each limb in the target, add it to our cache if it is a valid option.
-                if (value.CanAddMechanism(this))
+                if (part.CanAddMechanism(this))
                 {
-                    OptionsCache.Add(IdHash, value);
-                    toSend.Add(key + ": " + value.Name, IdHash++);
+                    OptionsCache.Add(IdHash, slot);
+                    toSend.Add(part + ": " + part.Name, IdHash++);
                 }
             }
 
@@ -88,7 +88,7 @@ namespace Content.Server.GameObjects.Components.Body
             }
             else // If surgery cannot be performed, show message saying so.
             {
-                eventArgs.Target.PopupMessage(eventArgs.User,
+                eventArgs.Target?.PopupMessage(eventArgs.User,
                     Loc.GetString("You see no way to install the {0}.", Owner.Name));
             }
         }

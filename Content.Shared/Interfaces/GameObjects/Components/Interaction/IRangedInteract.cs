@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using JetBrains.Annotations;
+using Robust.Shared.Analyzers;
 using Robust.Shared.GameObjects;
-using Robust.Shared.Interfaces.GameObjects;
 using Robust.Shared.Map;
 
 namespace Content.Shared.Interfaces.GameObjects.Components
@@ -10,34 +10,37 @@ namespace Content.Shared.Interfaces.GameObjects.Components
     /// This interface gives components behavior when being clicked on by a user with an object
     /// outside the range of direct use
     /// </summary>
+    [RequiresExplicitImplementation]
     public interface IRangedInteract
     {
         /// <summary>
         /// Called when we try to interact with an entity out of range
         /// </summary>
-        /// <returns></returns>
+        [Obsolete("Use RangedInteractMessage instead")]
         bool RangedInteract(RangedInteractEventArgs eventArgs);
     }
 
     [PublicAPI]
     public class RangedInteractEventArgs : EventArgs
     {
-        public IEntity User { get; set; }
-        public IEntity Using { get; set; }
-        public EntityCoordinates ClickLocation { get; set; }
+        public RangedInteractEventArgs(IEntity user, IEntity @using, EntityCoordinates clickLocation)
+        {
+            User = user;
+            Using = @using;
+            ClickLocation = clickLocation;
+        }
+
+        public IEntity User { get; }
+        public IEntity Using { get; }
+        public EntityCoordinates ClickLocation { get; }
     }
 
     /// <summary>
     ///     Raised when being clicked by objects outside the range of direct use.
     /// </summary>
     [PublicAPI]
-    public class RangedInteractMessage : EntitySystemMessage
+    public class RangedInteractMessage : HandledEntityEventArgs
     {
-        /// <summary>
-        ///     If this message has already been "handled" by a previous system.
-        /// </summary>
-        public bool Handled { get; set; }
-
         /// <summary>
         ///     Entity that triggered the attack.
         /// </summary>
